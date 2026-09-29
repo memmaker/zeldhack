@@ -1,0 +1,649 @@
+# NetHack 3.6  defaults.nh       $NHDT-Date: 1524689357 2018/04/25 20:49:17 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.32 $
+# Copyright (c) 2006 by Michael Allison
+# NetHack may be freely redistributed.  See license for details.
+
+# Sample config file for win32 NetHack
+# A '#' at the beginning of a line means the rest of the line is a comment.
+#
+# Some options MUST be set in this file, other options can be toggled while
+# playing.  For a list of options available see the <opthelp.> file.
+#
+# To change the configuration, comment out the unwanted lines, and
+# uncomment the configuration you want.
+#
+# $NHDT-Date: 1524689357 2018/04/25 20:49:17 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.32 $
+
+# *** OPTIONS ***
+#
+# Use the IBM character set rather than just plain ascii characters for tty window-port.
+OPTIONS=symset:default,roguesymset:RogueEpyx
+# Here is a suggested symbol set from Michael Feir, 
+# for use by blind NetHack players
+#OPTIONS=symset:NHAccess,roguesymset:NHAccess
+
+# Optional curses port interface
+#OPTIONS=windowtype:curses
+#
+# Keyboard handling
+# Ray Chason's keyboard handling
+# OPTIONS=altkeyhandling:ray
+#
+# NetHack 3.4.0 keyboard handling
+# OPTIONS=altkeyhandling:340
+
+# *** Personal Preferences ***
+# Some options to set personal preferences.  Uncomment and change these to
+# suit your personal preference.  If several people are to use the same
+# configuration, options like these should not be set.
+#
+#OPTIONS=name:Janet,role:Valkyrie,race:Human,gender:female,align:lawful
+#OPTIONS=dogname:Fido,catname:Morris,fruit:guava
+#OPTIONS=horsename:Silver
+
+# Disable autopickup
+OPTIONS=autopickup
+
+# When autopickup is on, automatically pick up these types of objects
+OPTIONS=pickup_types:$
+
+#OPTIONS=packorder:")[%?+/=!(*0_`
+#OPTIONS=scores:10 top/2 around/own
+#OPTIONS=nolegacy,noverbose
+#OPTIONS=menustyle:partial
+#OPTIONS=perm_invent
+OPTIONS=pile_limit:2
+OPTIONS=pickup_thrown
+OPTIONS=dogname:Sirius
+OPTIONS=catname:Blacky
+OPTIONS=horsename:Jump
+OPTIONS=boulder:0
+SAVEDIR=./saves
+
+
+# Highlight menu lines with different colors. You need to define the colors
+# with MENUCOLOR lines.
+#  Toggle menucolor use on or off
+OPTIONS=menucolors
+# Define color used for a certain menu line. Format is
+#    MENUCOLOR="regular expression"=color
+# or
+#    MENUCOLOR="regular expression"=color&attribute
+#  Show all blessed items in green
+MENUCOLOR=" blessed " = green
+#  Show all holy water in green
+MENUCOLOR=" holy " = green
+#  Show all cursed items in red
+MENUCOLOR=" cursed " = red
+#  Show all unholy water in red
+MENUCOLOR=" unholy " = red
+#  Show all cursed worn items in orange and underlined
+MENUCOLOR=" cursed .* (being worn)" = orange&underline
+
+
+
+# General options.  You might also set "silent" so as not to attract
+# the boss's attention.
+#
+# number_pad option can have an optional value of 0 (off), 1 (on), 
+# or 2(on,legacy-mode) which causes 5='g', alt-5='G', alt-0='I'
+OPTIONS=time,noshowexp,number_pad:2,lit_corridor,mouse_support:1
+
+# Make commands that ask for an inventory item pop up a menu
+OPTIONS=force_invmenu
+
+#
+# If you want to get rid of "use #quit to quit..." use:
+OPTIONS=suppress_alert:3.3.1
+#
+# Note: the rest_on_space in the next line may not be
+#       appropriate for a beginning NetHack player, since
+#       it could result in use of a turn unintentionally.
+#       If you're new to NetHack, leave it commented it out.
+#OPTIONS=rest_on_space
+#
+# Set some options to control graphical window-port (these will
+# be safely and silently ignored by the tty port)
+#
+# Map window settings
+# possible map_mode options include: tiles|ascii4x6|ascii6x8|ascii8x8|ascii16x8|
+#                                    ascii7x12|ascii8x12|ascii16x12|ascii12x16|
+#                                    ascii10x18|fit_to_screen|ascii_fit_to_screen|
+#                                    tiles_fit_to_screen
+OPTIONS=map_mode:tiles,scroll_margin:10
+
+OPTIONS=tile_file:ZeldHack_32.bmp
+
+OPTIONS=tile_width:32
+
+OPTIONS=tile_height:32
+
+
+# Message window settings
+OPTIONS=font_message:Arial,font_size_message:14,align_message:top
+
+# Menu settings
+OPTIONS=font_menu:Courier New,font_size_menu:14
+
+# Text settings
+OPTIONS=font_text:Courier New,font_size_text:14
+
+# Status window settings
+OPTIONS=font_status:Courier New,font_size_status:14
+
+# Other
+OPTIONS=hilite_pet,!toptenwin
+#OPTIONS=!splash_screen,player_selection:prompts
+
+
+# Status/message window colors
+# Possible color options include:
+# six digit hexadecimal RGB color value ("#8F8F8F"), black, red, green, brown,
+# blue, magenta, cyan, gray (or grey), orange, brightgreen, yellow, brightblue,
+# brightmagenta, brightcyan, white, trueblack, purple, silver, maroon, fuchsia,
+# lime, olive, navy, teal, aqua, activeborder, activecaption, appworkspace,
+# background, btnface, btnshadow, btntext, captiontext, graytext, highlight,
+# highlighttext, inactiveborder, inactivecaption, menu, menutext, scrollbar,
+# window, windowframe, windowtext.
+#OPTIONS=windowcolors:status windowtext/window message windowtext/window
+
+# "Nethack mode" colors
+OPTIONS=windowcolors:status white/#000000 message white/#000000 text white/#000000 menu white/#000000 menutext white/#000000
+OPTIONS=vary_msgcount:4
+
+# *** LOCATIONS ***
+# IMPORTANT: If you change any of these locations, the directories they
+# point at must exist.  NetHack will not create them for you.
+#
+# The location that documentation and helps files are placed
+#HACKDIR=c:\User\USERNAME\NetHack\3.6
+#
+# The location that level files in progress are stored (writeable)
+#LEVELDIR=c:\User\USERNAME\AppData\Local\NetHack\3.6
+#
+# The location where saved games are kept (writeable)
+#SAVEDIR=c:\User\USERNAME\AppData\Local\NetHack\3.6
+#
+# The location that bones files are kept (writeable)
+#BONESDIR=c:\ProgramData\NetHack\3.6
+#
+# The location that score files are kept (writeable)
+#SCOREDIR=c:\ProgramData\NetHack\3.6
+#
+# The location that file synchronization locks are stored (writeable)
+#LOCKDIR=c:\ProgramData\NetHack\3.6
+#
+
+# Finnish keyboards might need these modifications uncommented. 
+# For  \, @, $, [, |
+#OPTIONS=subkeyvalue:171/92
+#OPTIONS=subkeyvalue:178/64
+#OPTIONS=subkeyvalue:180/36
+#OPTIONS=subkeyvalue:184/91
+#OPTIONS=subkeyvalue:188/124
+
+#
+# Some versions of Windows allow you to adjust the win32 console port 
+# colors using R-G-B settings.
+#
+#OPTIONS=palette:black-0-0-0
+#OPTIONS=palette:red-210-0-0
+#OPTIONS=palette:green-80-200-0
+#OPTIONS=palette:brown-180-100-0
+#OPTIONS=palette:blue-0-0-200
+#OPTIONS=palette:magenta-128-0-128
+#OPTIONS=palette:cyan-50-180-180
+#OPTIONS=palette:gray-192-192-192
+#OPTIONS=palette:dark gray-100-100-100
+#OPTIONS=palette:orange-255-128-0
+#OPTIONS=palette:bright green-0-255-0
+#OPTIONS=palette:yellow-255-255-0
+#OPTIONS=palette:bright blue-100-100-240
+#OPTIONS=palette:bright magenta-255-0-255
+#OPTIONS=palette:bright cyan-0-255-255
+#OPTIONS=palette:white-255-255-255
+
+
+# Status hilites
+OPTIONS=statushilites
+# HP
+OPTIONS=hitpointbar
+OPTIONS=hilite_status:hitpoints/100%/gray&normal
+OPTIONS=hilite_status:hitpoints/<100%/green&normal
+OPTIONS=hilite_status:hitpoints/<66%/yellow&normal
+OPTIONS=hilite_status:hitpoints/<50%/orange&normal
+OPTIONS=hilite_status:hitpoints/<33%/red&bold
+OPTIONS=hilite_status:hitpoints/<15%/red&inverse
+
+## Pw
+OPTIONS=hilite_status:power/100%/gray&normal
+OPTIONS=hilite_status:power/<100%/green&normal
+OPTIONS=hilite_status:power/<66%/yellow&normal
+OPTIONS=hilite_status:power/<50%/orange&normal
+OPTIONS=hilite_status:power/<33%/red&bold
+
+## Carry
+OPTIONS=hilite_status:cap/burdened/yellow/stressed/orange/strained/red&bold/overtaxed/red&inverse/overloaded/red&inverse&blink
+
+## Hunger
+OPTIONS=hilite_status:hunger/satiated/yellow/hungry/orange/weak/red&bold/fainting/red&inverse/fainted/red&inverse&blink
+
+## Mental
+OPTIONS=hilite_status:condition/hallu/yellow
+OPTIONS=hilite_status:condition/conf/orange
+OPTIONS=hilite_status:condition/stun/red&bold
+
+## Health
+OPTIONS=hilite_status:condition/termill/red&inverse
+OPTIONS=hilite_status:condition/foodpois/red&inverse
+OPTIONS=hilite_status:condition/slime/red&inverse
+
+# gold
+OPTIONS=hilite_status:gold/up/yellow/down/brown
+
+# St, Dx, Co, In, Wi, Ch
+OPTIONS=hilite_status:characteristics/up/green/down/red
+
+SOUNDDIR=sounds
+
+# Female Voice Variant: Put a # in front of the gendered sounds you don't want to use.
+
+#SOUND=MESG "vomit"                                  "norm_vomit.wav"      100
+#SOUND=MESG "Blecch!"                                "norm_blecch.wav"     100
+#SOUND=MESG "Ouch!"                                  "norm_ouch.wav"       100
+#SOUND=MESG "lack of food"                           "norm_hungry.wav"       100
+#SOUND=MESG "needs food, badly!"                     "norm_hungry.wav"       100
+#SOUND=MESG "You are beginning to feel hungry."      "norm_hungry.wav"       100
+#SOUND=MESG "You are beginning to feel weak."        "norm_weak.wav"       100
+
+# Male Voice Variant: Put a # in front of the gendered sounds you don't want to use.ites
+
+SOUND=MESG "vomit"                                  "norm_vomit.wav"      100
+SOUND=MESG "Blecch!"                                "norm_blecch.wav"     100
+SOUND=MESG "Ouch!"                                  "norm_ouch.wav"       100
+SOUND=MESG "lack of food"                           "norm_hungry.wav"       100
+SOUND=MESG "needs food, badly!"                     "norm_hungry.wav"       100
+SOUND=MESG "You are beginning to feel hungry."      "norm_hungry.wav"       100
+SOUND=MESG "You are beginning to feel weak."        "norm_weak.wav"       100
+
+# Other Sounds
+
+SOUND=MESG "welcome to NetHack!"                    "norm_entrance.wav"       100
+SOUND=MESG "welcome back to NetHack!"               "norm_entrance.wav"       100
+SOUND=MESG "You descend the stairs."                "norm_stairs.wav"       60
+SOUND=MESG "You climb up the stairs."                "norm_stairs.wav"       100
+SOUND=MESG "gold pieces."               	    "norm_gold2.wav"       100
+SOUND=MESG "You ring the bell."                     "norm_bell.wav"       100
+SOUND=MESG "This door is locked."                   "norm_lock.wav"       100
+SOUND=MESG "The door resists!"                      "norm_door1.wav"      100
+SOUND=MESG "The door opens."                        "norm_porte.wav"      100
+SOUND=MESG "You hear a door open."                  "norm_porte.wav"      100
+SOUND=MESG "The door closes."                       "norm_porte.wav"      100
+SOUND=MESG "it crashes open"                	    "norm_crack.wav"      100
+SOUND=MESG "The door crashes open"                  "norm_crack.wav"      100
+SOUND=MESG "The door splinters!"                    "norm_crack.wav"      100
+SOUND=MESG "WHAMMM!!!"                              "norm_pied.wav"     100
+SOUND=MESG "Thwack!!!"                              "norm_pied.wav"     100
+SOUND=MESG "Hmmm, it seems to be locked."           "norm_lock.wav"       100
+SOUND=MESG "slams open"                             "norm_slams.wav"      100
+SOUND=MESG "break open the lock"                    "norm_crack.wav"      100
+SOUND=MESG "THUD!"                                  "norm_thud.wav"       100
+SOUND=MESG "Klunk!*"                                "norm_metal.wav"      100
+SOUND=MESG "move the boulder"                       "norm_boulder.wav"    100
+SOUND=MESG "hit by a boulder!"                      "norm_boulder.wav"    100
+SOUND=MESG "You finish eating"                      "norm_munch.wav"      100
+SOUND=MESG "Maud"                                   "norm_maud.wav"       100
+SOUND=MESG "turns to dust"    		                "norm_crumble.wav"    100
+SOUND=MESG "Your shirt crumbles into tiny threads and falls apart!"  "norm_crumble.wav"    100
+SOUND=MESG "Your helmet turns to dust and is blown away!"    		 "norm_crumble.wav"    100
+SOUND=MESG "Your gloves vanish!"    		        "norm_crumble.wav"   100
+SOUND=MESG "Your boots disintegrate!"    		    "norm_crumble.wav"   100
+SOUND=MESG "Your shield crumbles away!"    		    "norm_crumble.wav"   100
+SOUND=MESG "You begin to memorize the runes"        "norm_book.wav"       100
+SOUND=MESG "through thin air."                      "norm_air.wav"        100
+SOUND=MESG "You kick at empty space."               "norm_air.wav"        100
+SOUND=MESG "You attack thin air."                   "norm_air.wav"        100
+SOUND=MESG "You succeed in forcing the lock."       "norm_reussi.wav"       100
+SOUND=MESG "You succeed in cutting away"           "norm_rocks.wav"       100
+SOUND=MESG "You make an opening in the"            "norm_rockl.wav"       100
+SOUND=MESG "You start digging downward"            "norm_rockl.wav"       100
+SOUND=MESG "This wall is too hard"                 "norm_vault.wav"       100
+SOUND=MESG "The boulder fills a pit."               "norm_fills.wav"      100
+SOUND=MESG "glows silver"                          "norm_harp.wav"        100
+SOUND=MESG "glows blue"                            "norm_harp.wav"        100
+SOUND=MESG "surrounded by a shimmering light"      "norm_shimmer.wav"     100
+SOUND=MESG "Magical energies course through"       "norm_shimmer.wav"     100
+SOUND=MESG "You hear a low moaning"                "norm_zombie.wav"      100
+
+SOUND=MESG "Nicodemus squeaks."      			   "norm_mouse.wav"       100 # There seems to be no way to have a non-named squeak without interfering with the squeaky board.
+
+SOUND=MESG "glows black"                           "norm_black.wav"       100 # cursing an item
+SOUND=MESG "is displeased"                    	   "norm_black.wav"       100 ## upset god, but no effect
+SOUND=MESG "is bummed"                     		   "norm_black.wav"       100 ## upset god, but no effect
+SOUND=MESG "relearn thy lessons"                   "norm_black.wav"       100 ## upset god, lose 1 wisdom and level
+SOUND=MESG "strayed from the path"                 "norm_black.wav"       100 ## upset god, lose 1 wisdom and level
+SOUND=MESG "thou art arrogant"                     "norm_black.wav"       100 ## upset god, lose 1 wisdom and level
+SOUND=MESG "Thou hast angered me"                  "norm_black.wav"       100 ## upset god, randomly cursed item
+SOUND=MESG "A black glow surrounds you."           "norm_black.wav"       100 ## upset god, randomly cursed item
+SOUND=MESG "Thou durst call upon me?"          	   "norm_black.wav"       100 ## upset god, summon hostile minion
+SOUND=MESG "Thou durst scorn me?"           	   "norm_black.wav"       100 ## upset god, summon hostile minion
+SOUND=MESG "Then die, mortal!"           		   "norm_black.wav"       100 ## upset god, summon hostile minion
+
+SOUND=MESG "You hear maniacal laughter close by."         "norm_scare monster.wav"       100 # You read a scroll of scare monster, and at least one non-tame monster was scared.
+SOUND=MESG "You hear maniacal laughter in the distance."  "norm_scare monster.wav"       100 # As above, but no non-tame monsters were affected.
+SOUND=MESG "You hear sad wailing close by."           	  "norm_scare monster 2.wav"       100 # You read a scroll of scare monster while confused, or the scroll was cursed, and at least one non-tame monster was awoken, un-paralyzed, or un-scared.
+SOUND=MESG "You hear sad wailing in the distance."        "norm_scare monster 2.wav"       100 # As above, but no non-tame monsters were affected.
+
+SOUND=MESG "You feel somewhat dizzy"         	   "norm_shatter.wav"     100 # from a thrown potion of confusion. I'm trying this before the Evilhack intrinsinc messages.
+
+SOUND=MESG "You feel slightly more"         			  "norm_intrinsinc.wav"       100 # gain a generic intrinsinc, evilhack gain
+SOUND=MESG "You feel somewhat"         			 		  "norm_intrinsinc.wav"       100 # gain a generic intrinsinc, evilhack gain
+SOUND=MESG "You feel much more"                           "norm_intrinsinc.wav"       100 # gain a generic intrinsinc, evilhack gain
+SOUND=MESG "You feel slightly"          				  "norm_intrinsinc.wav"       100 # gain a generic intrinsinc, evilhack gain
+SOUND=MESG "You feel significantly more"			      "norm_intrinsinc.wav"       100 # gain a generic intrinsinc, evilhack gain
+SOUND=MESG "You feel considerably"				          "norm_intrinsinc.wav"       100 # gain a generic intrinsinc, evilhack gain
+
+SOUND=MESG "You feel a momentary chill."           "norm_intrinsinc.wav"       100 # gain fire intrinsinc
+SOUND=MESG "You feel a bit more chill."            "norm_intrinsinc.wav"       100 # gain fire intrinsinc, evilhack small gain
+SOUND=MESG "You feel completely chilled."          "norm_intrinsinc.wav"       100 # gain fire intrinsinc, evilhack small gain
+SOUND=MESG "You be chillin'."           		   "norm_intrinsinc.wav"       100 # gain fire intrinsinc
+SOUND=MESG "You feel cool!"           		   	   "norm_intrinsinc.wav"       100 # gain fire intrinsinc
+
+SOUND=MESG "You feel very firm."           		   "norm_intrinsinc.wav"       100 # gain disintegration resistance intrinsinc
+SOUND=MESG "You feel completely firm."             "norm_intrinsinc.wav"    	  100 # gain disintegration resistance intrinsinc, evilhack gain max
+SOUND=MESG "You feel totally together, man."       "norm_intrinsinc.wav"       100 # gain disintegration resistance intrinsinc
+
+SOUND=MESG "You feel healthy."           		   "norm_intrinsinc.wav"       100 # gain poison resistance intrinsinc
+SOUND=MESG "You feel especially healthy."          "norm_intrinsinc.wav"       100 # gain poison resistance intrinsinc
+SOUND=MESG "You feel much healthier."              "norm_intrinsinc.wav"       100 # gain poison resistance intrinsinc, evilhack large gain
+SOUND=MESG "You feel completely healthy."          "norm_intrinsinc.wav" 	  100 # gain poison resistance intrinsinc, evilhack gain max
+SOUND=MESG "You feel significantly healthier."     "norm_intrinsinc.wav"       100 # gain poison resistance intrinsinc, evilhack large gain
+SOUND=MESG "You feel hardy!"           		   	   "norm_intrinsinc.wav"       100 # gain poison resistance intrinsinc
+
+SOUND=MESG "You feel full of hot air."             "norm_intrinsinc.wav"       100 # gain cold resistance intrinsinc
+SOUND=MESG "You feel warm!"         		       "norm_intrinsinc.wav"       100 # gain cold resistance intrinsinc
+SOUND=MESG "You feel a bit warmer."         	   "norm_intrinsinc.wav"       100 # gain cold resistance intrinsinc, evilhack small gain
+SOUND=MESG "You feel much warmer."         		   "norm_intrinsinc.wav"       100 # gain cold resistance intrinsinc, evilhack large gain
+
+SOUND=MESG "You feel wide awake."             	   "norm_intrinsinc.wav"       100 # gain sleep resistance intrinsinc
+SOUND=MESG "You feel awake!"         		       "norm_intrinsinc.wav"       100 # gain sleep resistance intrinsinc
+SOUND=MESG "You feel a bit perkier."               "norm_intrinsinc.wav"       100 # gain sleep resistance intrinsinc, evilhack small gain
+SOUND=MESG "You feel much perkier."         	   "norm_intrinsinc.wav"       100 # gain sleep resistance intrinsinc, evilhack large gain
+
+SOUND=MESG "Your health currently feels amplified!" "norm_intrinsinc.wav"      100 # gain shock resistance intrinsinc
+SOUND=MESG "Your health is a bit more amplified!"  "norm_intrinsinc.wav"       100 # gain shock resistance intrinsinc, evilhack small gain
+SOUND=MESG "Your health is much more amplified!"  "norm_intrinsinc.wav"        100 # gain shock resistance intrinsinc, evilhack large gain
+SOUND=MESG "Your health is somewhat more amplified!" "norm_intrinsinc.wav"     100 # gain shock resistance intrinsinc, evilhack large gain
+SOUND=MESG "Your health feels completely amplified!" "norm_intrinsinc.wav"     100 # gain shock resistance intrinsinc, evilhack gain max
+SOUND=MESG "You feel grounded in reality."         "norm_intrinsinc.wav"       100 # gain shock resistance intrinsinc
+SOUND=MESG "You feel insulated!"         		   "norm_intrinsinc.wav"       100 # gain shock resistance intrinsinc
+
+SOUND=MESG "You feel hidden!"         		   	   "norm_intrinsinc.wav"       100 ## gain invisible intrinsinc
+
+SOUND=MESG "You feel sensitive!"         		   "norm_intrinsinc.wav"       100 # gain warning intrinsinc
+
+SOUND=MESG "You see an image of someone stalking you. But it disappears."  "norm_intrinsinc.wav"       100 ## gain see invis intrinsinc
+SOUND=MESG "You feel very self-conscious. But it passes." "norm_intrinsinc.wav" 100 ## gain see invis intrinsinc
+SOUND=MESG "You feel transparent."         		   	"norm_intrinsinc.wav"       100 ## gain see invis intrinsinc
+SOUND=MESG "Your vision becomes clear!"             "norm_intrinsinc.wav"       100 ## gain see invis intrinsinc
+
+SOUND=MESG "You feel perceptive!"         		   	"norm_intrinsinc.wav"       100 # gain searching intrinsinc
+
+SOUND=MESG "You feel quick!"         		   	    "norm_intrinsinc.wav"       100 # gain speed intrinsinc
+SOUND=MESG "Your quickness feels more natural."     "norm_intrinsinc.wav"       100 ## gain speed intrinsinc
+
+SOUND=MESG "You feel very jumpy."    				"norm_intrinsinc.wav"       100 # gain teleportitus intrinsinc
+SOUND=MESG "You feel diffuse."    					"norm_intrinsinc.wav"       100 ## gain teleportitus intrinsinc
+
+SOUND=MESG "You feel controlled!"    				"norm_intrinsinc.wav"       100 # gain teleport control intrinsinc
+SOUND=MESG "You feel in control of yourself."    	"norm_intrinsinc.wav"       100 ## gain teleport control intrinsinc
+SOUND=MESG "You feel centered in your personal space." "norm_intrinsinc.wav"    100 ## gain teleport control intrinsinc
+
+SOUND=MESG "You feel a strange mental acuity." 		"norm_intrinsinc.wav"  	   100 ## gain telepathy intrinsinc
+SOUND=MESG "You feel in touch with the cosmos." 	"norm_intrinsinc.wav"  	   100 ## gain telepathy intrinsinc
+
+#SOUND=MESG "You feel less sensitive!"     			"norm_intrinsinc.wav"	   100 ## lost the telepathy intrinsinc
+#SOUND=MESG "You feel less attractive."             "norm_intrinsinc.wav"       100 ## a gremlin stole aggravate monster intrinsinc
+#SOUND=MESG "You feel warmer."           		    "norm_intrinsinc.wav"       100 ## lost fire intrinsinc from gremlin
+#SOUND=MESG "You feel warmer!"           		    "norm_intrinsinc.wav"       100 ## lost fire intrinsinc from level drain
+#SOUND=MESG "You feel a little sick!"           	"norm_intrinsinc.wav"       100 ## lost poison resistance intrinsinc
+#SOUND=MESG "You feel cooler."           			"norm_intrinsinc.wav"       100 ## lost cold resistance intrinsinc
+#SOUND=MESG "You feel tired!"           			"norm_intrinsinc.wav"       100 ## lost sleep resistance intrinsinc
+#SOUND=MESG "You feel conductive!"           		"norm_intrinsinc.wav"       100 ## lost shock resistance intrinsinc
+#SOUND=MESG "You thought you saw something!"        "norm_intrinsinc.wav"       100 ## lost invisible intrinsinc
+#SOUND=MESG "You tawt you taw a puttie tat!"        "norm_intrinsinc.wav"       100 ## lost invisible intrinsinc
+#SOUND=MESG "You feel vulnerable."      		    "norm_intrinsinc.wav"       100 ## lost protection
+#SOUND=MESG "You feel slow!"       				    "norm_intrinsinc.wav"       100 ## lost speed intrinsinc
+#SOUND=MESG "You feel less jumpy."       		    "norm_intrinsinc.wav"       100 ## lost teleportitus intrinsinc
+#SOUND=MESG "You feel uncontrolled!"       		    "norm_intrinsinc.wav"       100 ## lost teleport control intrinsinc
+
+SOUND=MESG "you to sleep"                           "norm_sleep.wav"       100
+
+
+SOUND=MESG "Snap!"                                 "norm_snap.wav"        100
+SOUND=MESG "You wrap your bullwhip around"         "norm_whip trick.wav"  100
+SOUND=MESG "You flick your bullwhip towards"       "norm_whip trick.wav"  100
+
+SOUND=MESG "You hit the"                           "norm_hit1.wav"        100
+SOUND=MESG "You smite the"                         "norm_hit1.wav"        100
+SOUND=MESG "You kick the"                          "norm_hit1.wav"        100
+SOUND=MESG "You destroy the"                       "norm_hit2.wav"        100
+SOUND=MESG "You kill the"                          "norm_hit2.wav"        100
+SOUND=MESG "hits"                                  "norm_hit1.wav"        100
+SOUND=MESG "You bludgeon"                          "norm_hit1.wav"        100
+SOUND=MESG "You smash"                             "norm_hit1.wav"        100
+SOUND=MESG "You strike"                            "norm_hit1.wav"        100
+SOUND=MESG "You lacerate"                          "norm_hit1.wav"        100
+SOUND=MESG "You cut"	                           "norm_hit1.wav"        100
+SOUND=MESG "You slash"	                           "norm_hit1.wav"        100
+SOUND=MESG "You claw the"	                   "norm_hit1.wav"        100
+SOUND=MESG "You disarm"	                           "norm_disarm.wav"      60
+SOUND=MESG "unlocking"				   "norm_disarm.wav"      60
+SOUND=MESG "Thump!"				   "norm_thump.wav"       100
+
+
+SOUND=MESG "You feel like someone is helping"      "norm_helping.wav"     100
+SOUND=MESG "coalesces in your mind"                "norm_helping.wav"     100
+SOUND=MESG "door shatters"                         "norm_crack.wav"       100
+SOUND=MESG "shatter"                               "norm_shatter.wav"     100
+SOUND=MESG "breaks into shards"                    "norm_shatter.wav"     100
+SOUND=MESG "You bought"                            "norm_register.wav"    100
+SOUND=MESG "punished for your misbehavior"         "norm_chain.wav"       100
+SOUND=MESG "magic missile hits"                    "norm_missile.wav"     100
+SOUND=MESG "lightning bolt hits"                   "norm_lightning.wav"   100
+SOUND=MESG "magic missile bounces"                 "norm_missile.wav"     100
+SOUND=MESG "lightning bolt bounces"                "norm_lightning.wav"   100
+SOUND=MESG "bounces!"                              "norm_bonk.wav"     100
+SOUND=MESG "blinded by the flash"                  "norm_camera.wav"      100
+SOUND=MESG "blinded by a"                  		   "norm_camera.wav"      100
+SOUND=MESG "bites"                                 "norm_bites.wav"       100
+SOUND=MESG "You get zapped"                        "norm_spark.wav"       100
+SOUND=MESG "You miss the"                          "norm_swing2.wav"       60
+SOUND=MESG "misses"                                "norm_swing2.wav"       100
+SOUND=MESG "You are splashed by"                   "norm_slop.wav"        100
+SOUND=MESG "You die"                               "norm_mort.wav"  100
+SOUND=MESG "gush of water hits"                    "norm_gush.wav"        100
+SOUND=MESG "You hear the splashing of a naiad."    "norm_naiad.wav"       100
+SOUND=MESG "You hear bubbling water."              "norm_bubbs.wav"       100
+SOUND=MESG "You hear a strange wind."              "norm_wind.wav"        100
+SOUND=MESG "You hear a slow drip"                  "norm_drip.wav"        100
+SOUND=MESG "a monster behind the boulder"          "norm_bison.wav"       100
+SOUND=MESG "Water gushes forth"                    "norm_water.wav"       100
+SOUND=MESG "You fall into water!"                  "norm_dive.wav"        100
+SOUND=MESG "You are hit by a dart"                 "norm_hurt.wav"        100
+SOUND=MESG "You are hit by an arrow"               "norm_hurt.wav"       100
+SOUND=MESG "You feel self-knowledgeable..."        "norm_magic1.wav"      100
+SOUND=MESG "the presence of"                       "norm_magic1.wav"      100
+SOUND=MESG "nose tingles and you smell"            "norm_sniff.wav"       100
+SOUND=MESG "moving faster"                         "norm_faster.wav"      100
+SOUND=MESG "You speed up."                         "norm_faster.wav"      100
+SOUND=MESG "noises in the distance."               "norm_skrap z.wav"       100
+SOUND=MESG "howling of the CwnAnnwn..."            "norm_howling.wav"     100
+SOUND=MESG "cool draught refreshes you"            "norm_dunk.wav"    	 100
+SOUND=MESG "This tepid water is tasteless"         "norm_dunk.wav"    	 100
+SOUND=MESG "The water is contaminated"             "norm_dunk.wav"    	 100
+SOUND=MESG "Perhaps it is runoff from the nearby"  "norm_dunk.wav"    	 100
+SOUND=MESG "This water's no good"         		   "norm_dunk.wav"     	 100
+SOUND=MESG "This water gives you bad breath"       "norm_dunk.wav"    	 100
+SOUND=MESG "You spot a gem in the sparkling waters" "norm_dunk.wav"    	 100
+SOUND=MESG "You feel a gem here"         			"norm_dunk.wav"    	 100
+SOUND=MESG "You get the heebie jeebies."            "norm_dunk.wav"    	 100
+SOUND=MESG "The feeling subsides..."                "norm_magic1.wav"     100
+SOUND=MESG "You hear something hissing"             "norm_dunk.wav"       100
+SOUND=MESG "An endless stream of snakes pours forth" "norm_dunk.wav"      100
+SOUND=MESG "The fountain bubbles furiously"         "norm_dunk.wav"       100
+SOUND=MESG "You unleash a water demon"        		"norm_dunk.wav"       100
+SOUND=MESG "You feel the presence of evil"          "norm_dunk.wav"       100
+SOUND=MESG "You attract a water nymph"         		"norm_giggle.wav"     100
+SOUND=MESG "You hear a seductive voice"     	    "norm_dunk.wav"       100
+SOUND=MESG "A large bubble rises to the surface and pops" "norm_dunk.wav" 100
+SOUND=MESG "You hear a loud pop"        			"norm_dunk.wav"       100
+SOUND=MESG "You see an image of someone stalking you. But it disappears"    "norm_dunk.wav"     100
+SOUND=MESG "Your thirst is quenched"         		"norm_dunk.wav"       100
+SOUND=MESG "You feel very attracted to"            "norm_attraction.wav"  100
+SOUND=MESG "You make a lot of noise"               "norm_noise.wav"       100
+SOUND=MESG "You hear a gurgling noise."            "norm_gurgling.wav"    100
+SOUND=MESG "gushes up from the drain"              "norm_gurgling.wav"    100
+SOUND=MESG "You hear * cash register."             "norm_register.wav"    100
+SOUND=MESG "You hear the footsteps"                "norm_footsteps.wav"   100
+SOUND=MESG "You hear a crashing sound"             "norm_crack.wav"       100
+SOUND=MESG "suddenly disappears!"                  "norm_teleport.wav"    100
+SOUND=MESG "teleporter trap"                       "norm_teleport.wav"    100
+SOUND=MESG "explosion"                             "norm_explosion.wav"   100
+SOUND=MESG "bear trap closes"                      "norm_beartrap.wav"    100
+SOUND=MESG "KABOOM!!"                              "norm_destruction.wav"      100
+SOUND=MESG "KAABLAMM!!"                            "norm_destruction.wav"      100
+SOUND=MESG "opening the tin"                       "norm_tin.wav"         100
+SOUND=MESG "more confident in"                     "norm_fanfare.wav"     100
+SOUND=MESG "You are now more skilled in"           "norm_fanfare.wav"     100
+SOUND=MESG "You are now most skilled in"           "norm_fanfare.wav"     100
+SOUND=MESG "ghost touches you"                     "norm_ghost.wav"       100
+SOUND=MESG "You miss"                              "norm_swing2.wav"       100
+SOUND=MESG "ghost misses"                          "norm_swing2.wav"       100
+SOUND=MESG "Welcome to experience level "          "norm_fanfare.wav"     100
+SOUND=MESG "monkey stole"                          "norm_monkey.wav"      100
+SOUND=MESG "mew"      			                   "norm_mew.wav"         100
+SOUND=MESG "purrs"				  			   	   "norm_purr.wav"	     100
+SOUND=MESG "yowls"				 				   "norm_yowl.wav"        100
+SOUND=MESG "barks"				    			   "norm_bark.wav"        100
+SOUND=MESG "yip"				    			   "norm_yip.wav"         100
+SOUND=MESG "whine"				  				   "norm_dwhine.wav"      100
+SOUND=MESG "whicker"							   "norm_whicker.wav"     100
+SOUND=MESG "whinny"				    			   "norm_whinny.wav"      100
+SOUND=MESG "neigh"				   				   "norm_neigh.wav"       100
+SOUND=MESG "mosquito drones"				   	   "norm_mosquito.wav"    100
+SOUND=MESG "picks up"				 			   "norm_pickup2.wav"      100
+SOUND=MESG "drops"					 		       "norm_drop2.wav"        100
+SOUND=MESG "rusts"					   		       "norm_crumble.wav"     100
+SOUND=MESG "You drop"							   "norm_drop2.wav"        100
+SOUND=MESG "the water glows for a moment"		   "norm_glow.wav"        100
+SOUND=MESG "You may wish for an object."		   "norm_wish.wav"        100 
+SOUND=MESG "For what do you wish?"			   	   "norm_wish.wav"        100
+SOUND=MESG "so cosmic"   						   "norm_hallucinate.wav"        100
+SOUND=MESG "Great stuff"   						   "norm_hallucinate.wav"        100
+SOUND=MESG "You have a peculiar feeling for a moment, then it passes."   	"norm_hallucinate.wav"        100
+SOUND=MESG "all cosmic"  					 	"norm_hallucinate.wav"        100
+SOUND=MESG "You are freaked out."   									 	"norm_hallucinate.wav"        100
+SOUND=MESG "Your vision seems to flatten for a moment, but is normal now."  "norm_hallucinate.wav"        100
+SOUND=MESG "A lit field surrounds you!"			   			"norm_light.wav"       		100
+SOUND=MESG "Hmmm, it turns out to be locked."	   			"norm_lock.wav"			100
+SOUND=MESG "You hear a wolf howling at the moon."  			"norm_howling.wav"	 		100	
+SOUND=MESG "You turn the lamp on."				   			"norm_lamp switch.wav" 		100
+SOUND=MESG "Your lamp is now on."				   			"norm_lamp switch.wav"		100
+SOUND=MESG "You turn the lamp off."				   			"norm_lamp switch.wav"		100
+SOUND=MESG "Your lamp is now off."				   			"norm_lamp switch.wav"		100
+SOUND=MESG "Your candle's flame burns brightly!"			"norm_candle light.wav"		100
+SOUND=MESG "Your candles' flames burn brightly!"			"norm_candle light.wav"		100
+SOUND=MESG "Your candles' flames burn."				   		"norm_candle light.wav"		100
+SOUND=MESG "Your candle's flame burns."				   		"norm_candle light.wav"		100
+SOUND=MESG "Your tallow candle's flame burns brightly!"		"norm_candle light.wav"		100
+SOUND=MESG "Your tallow candles' flames burn brightly!"		"norm_candle light.wav"		100
+SOUND=MESG "Your tallow candles' flames burn."				"norm_candle light.wav"		100
+SOUND=MESG "Your tallow candle's flame burns."				"norm_candle light.wav"		100
+SOUND=MESG "You snuff out your tallow candle."				"norm_candle snuff.wav"		100
+SOUND=MESG "You snuff out your tallow candles."				"norm_candle snuff.wav"		100
+SOUND=MESG "The wood nymph pretends to be friendly."		"norm_giggle.wav"			100
+SOUND=MESG "The water nymph pretends to be friendly."		"norm_giggle.wav"			100
+SOUND=MESG "The mountain nymph pretends to be friendly."	"norm_giggle.wav"			100
+SOUND=MESG "Your purse feels lighter."						"norm_leprechaun.wav"		100
+SOUND=MESG "You're such a sweet lady; I wish...."											"norm_incubus disappointment.wav"	100
+SOUND=MESG "Time stands still while you and the incubus lie in each other's arms..."		"norm_incubus friendly.wav"			100
+SOUND=MESG "foop"	                          				"norm_foop.wav"        		100 # Sokoban complete SFX, Evilhack
+SOUND=MESG "As the door gives way, you hear the other doors sealing."	"norm_foop.wav"  100 # Sokoban complete SFX, Evilhack
+SOUND=MESG "There's a gaping hole under you!"                 						"norm_tomber.wav"        100
+SOUND=MESG "A trap door opens up under you!"                 						"norm_tomber.wav"        100
+SOUND=MESG "You fall down a shaft!"                 								"norm_tomber.wav"        100
+SOUND=MESG "You fall down a deep shaft!"                 							"norm_tomber.wav"        100
+SOUND=MESG "You fall down a very deep shaft!"                 						"norm_tomber.wav"        100
+SOUND=MESG "You feel a strange vibration under your rear hooves."       			"norm_vibrating square.wav"        	100 #standing on the vibrating square, as a centaur
+SOUND=MESG "You feel a strange vibration under your feet."       					"norm_vibrating square.wav"        	100 #standing on the vibrating square
+SOUND=MESG "You feel a strange vibration beneath you."       						"norm_vibrating square.wav"        	100 #standing on the vibrating square, while flying
+SOUND=MESG "You feel your magical energy drain away."                 				"norm_energy drain.wav"     100
+SOUND=MESG "You feel momentarily lethargic."                 						"norm_energy drain.wav"     100
+SOUND=MESG "You produce a high whistling sound."                 					"norm_whistle tin.wav"        100
+SOUND=MESG "You produce a shrill whistling sound."                 					"norm_whistle tin cursed.wav" 100
+SOUND=MESG "You hear the shrill sound of a guard's whistle."               			"norm_whistle guard.wav"		 100
+SOUND=MESG "You produce a strange whistling sound."             		    		"norm_whistle magic.wav"		 100
+SOUND=MESG "You produce a high-pitched humming noise."            		   			"norm_whistle magic cursed.wav"	 100
+SOUND=MESG "You produce a normal whistling sound."              					"norm_whistle tin.wav"		 100
+SOUND=MESG "A board beneath you *"              									"norm_board squeak.wav"		 100
+SOUND=MESG "squeak in the distance."              									"norm_board squeak.wav"		 100
+SOUND=MESG "Fortunately, you are wearing a hard helmet."                 			"norm_bonk.wav"        100
+SOUND=MESG "The boulder falls into and plugs a hole in the floor!"          		"norm_fills.wav"        100
+SOUND=MESG "You materialize"         												"norm_teleport.wav"        100
+SOUND=MESG "You feel dizzy for a moment, but the sensation passes."         		"norm_teleport.wav"        100
+SOUND=MESG "The harp produces very attractive music."         						"norm_harp magic.wav"        		 100 #You applied a magic harp with charges and improvised with it.
+SOUND=MESG "You extract a strange sound from the magic harp!"         				"norm_harp magic.wav"        		 100 #As above, but you played a specific melody with the harp.
+SOUND=MESG "Your harp twangs."         												"norm_harp wood.wav"        			 100 #You applied a wooden harp and improvised with it.
+SOUND=MESG "You extract a strange sound from the harp!"         				    "norm_harp wood.wav"        			 100 #You applied a wooden harp and played a specific melody with the harp.
+SOUND=MESG "The harp produces a lilting melody."         				  			"norm_harp wood.wav"        			 100 #As above, but this also pacifies any nearby nymphs.
+SOUND=MESG "listens cheerfully to the music, then seems quieter."         		    "norm_harp wood.wav"        			 100 #A nymph in your range of vision was pacified by the wooden harp.
+SOUND=MESG "You see red streaks on the stone."         								"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see orange streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see yellow streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see blue streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see green streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see magenta streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see black streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see white streaks on the stone."         							"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see yellowish brown streaks on the stone."  						"norm_touchstone scrape.wav"          100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You see gray streaks on the stone."  									"norm_touchstone scrape.wav"          100 
+SOUND=MESG "scritch, scritch"         												"norm_touchstone scritch scritch.wav" 100 #rubbed a valuable gem on a touchstone
+SOUND=MESG "You make golden scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed gold on a non-touch gray stone
+SOUND=MESG "You make silvery scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed adamantine on a non-touch gray stone
+SOUND=MESG "You make red scratch marks on the stone."      							"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make orange scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make yellow scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make blue scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make green scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make magenta scratch marks on the stone."     					 	"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make black scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make white scratch marks on the stone."      						"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make yellowish brown scratch marks on the stone."     			 	"norm_touchstone scrape.wav"          100 #rubbed a gem on a non-touch gray stone
+SOUND=MESG "You make scratch marks on the stone."         							"norm_touchstone glass.wav"           100 #rubbed glass on a touchstone
+SOUND=MESG "Oh wow, man: Fractals!"      											"norm_touchstone scrape.wav"          100 #tried to use touchstone while hallucinating
+SOUND=MESG "You hear an eerie, ominous wail."      						 			"norm_eerie wail.wav"         		 100 #The portal to the Ice Queen's Realm is present on the level.
+SOUND=MESG "You hear a howling wind."     											"norm_wind.wav"         				 100 #The portal to the Ice Queen's Realm is present on the level.
+SOUND=MESG "You hear someone singing Do You Want to Build a Snowman."  				"norm_snow.wav"      	     100 #The portal to the Ice Queen's Realm is present on the level.
+SOUND=MESG "You arrive in a frozen, barren wasteland."  							"norm_eerie wail.wav"        	 	 100 #You entered the Ice Queen's Realm for the first time.
+SOUND=MESG "You hear a slow bubbling"       										"norm_forge lava.wav"        		 100 #forge, environment sound effect
+SOUND=MESG "You hear crackling flames."       										"norm_forge lava.wav"        		 100 #forge, environment sound effect
+SOUND=MESG "You have successfully forged"         									"norm_forge repaired.wav"    	     100 #forge, item combination succeeded
+SOUND=MESG "You fail to combine"         											"norm_forge failure.wav"      	     100 #forge, item combination failed
+SOUND=MESG "Clang!"   																"norm_forge failure.wav"     	     100 #forge, failed to break iron ball and end punishment
+SOUND=MESG "The chain breaks free!"   												"norm_forge unchained.wav"    	     100 #forge, broke iron ball and ended punishment
+SOUND=MESG "A weird sensation runs up your"         								"norm_forge nothing.wav"      	     100 #forge, nothing happens
+SOUND=MESG "You successfully reforge your"         									"norm_forge repaired.wav"     	     100 #forge, if repaired and not blind
+SOUND=MESG "looks reforged and as new as ever"         								"norm_forge repaired.wav"       	     100 #forge, if not repaired and not blind
+SOUND=MESG "You summon a lava demon"         										"norm_forge summon.wav"         	     100 #forge, if a monster is summoned
+SOUND=MESG "You feel the temperature rise significantly"       						"norm_forge summon.wav"         	 	 100 #forge, if a monster is summoned while blind
+SOUND=MESG "Freed from the depths of Gehennom"         								"norm_forge summon.wav"         	 	 100 #forge, if a monster is summoned as peaceful
+SOUND=MESG "The forge violently spews lava for a moment, then settles" 				"norm_forge summon.wav"          	 100 #forge, if nothing is summoned
+SOUND=MESG "The forge rumbles, then"       											"norm_forge break.wav"           	 100 #forge, explodes and take lava damage
+SOUND=MESG "You feel a sudden flare of heat"         								"norm_forge nothing.wav"        		 100 #forge, nothing happens
+SOUND=MESG "Molten lava incinerates its way down your gullet..."        			"norm_forge quaff.wav"        		 100 #forge, quaffing lava without protection (death)
+SOUND=MESG "You drink some molten lava. Mmmmm mmm"       							"norm_forge quaff.wav"        		 100 #forge, quaffing lava with protection, 50 nutrition
+SOUND=MESG "The forge splits in two as molten lava rushes forth"        			"norm_forge break.wav"           	 100 #forge, broke after quaffing
+SOUND=MESG "moves as though of its own will"       						"norm_forge summon.wav"         		 100 #forge, quaffing summon chance for fire elemental
+SOUND=MESG "You take a sip of molten lava."       					"norm_forge quaff.wav"        		 100 #forge, quaffing lava with protection, 5 nutrition
+SOUND=MESG "hisses"       								"norm_hissing.wav"        			 100 #hissing, psuedodragon
+
