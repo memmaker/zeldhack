@@ -64,6 +64,7 @@ static int nperm;
 static boolean perm_building;
 static int popup = -1, pop_top, pop_cur = -1;
 static boolean pop_any;
+static int pushed_key;
 #define POP_CLICK (pop_any ? ' ' : '\n')
 
 /* status fields, filled by web_status_update, drawn on BL_FLUSH */
@@ -172,8 +173,13 @@ getkey(boolean want_mouse)
     int k;
 
     redraw();
+    if (pushed_key) { /* a command key typed in the inventory list */
+        k = pushed_key;
+        pushed_key = 0;
+        return k;
+    }
     for (;;) {
-        boolean np = iflags.num_pad;
+        boolean np = iflags.num_pad || popup >= 0; /* lists: arrows = 8246 */
 
         if ((k = js_key(0, popup < 0 && !promptbuf[0])) < 0) {
             emscripten_sleep(15);
@@ -224,6 +230,7 @@ char **argv UNUSED;
             mapt[y][x] = -1, mapc[y][x] = ' ';
     iflags.window_inited = TRUE;
     iflags.perm_invent = TRUE;
+    iflags.force_invmenu = TRUE; /* RVIP: every item prompt shows the list */
     redraw();
 }
 
@@ -651,10 +658,11 @@ int how;
 menu_item **sel;
 {
     struct nhw *p = &wins[w];
-    int i, k, n, rows;
+    int i, k, n, rows, lm = how == PICK_ONE ? rvip_listmode : 0;
 
     *sel = 0;
-    if (w == WIN_INVEN) { /* copy into the inventory pane */
+    if (w == WIN_INVEN && (perm_building || how == PICK_NONE)) {
+        /* copy into the inventory pane */
         for (i = 0; i < nperm; i++)
             free(perm[i].s);
         free(perm);
@@ -681,6 +689,7 @@ menu_item **sel;
                 pop_top = pop_cur - rows + 1;
         }
         k = getkey(FALSE);
+        rvip_pick = 0;
         for (i = 0; i < p->nitems && p->items[i].ch != k; i++)
             ;
         if (i < p->nitems) /* a real accelerator wins over numpad keys */
@@ -693,6 +702,50 @@ menu_item **sel;
             popup = -1;
             return -1;
         }
+        /* RVIP lists (invent.c): 1 item prompt, 2 inventory, 3 item menu */
+        if (lm && i == p->nitems && (k == '4' || k == '6')) {
+            if (lm == 3 && k == '6')
+                k = '\n'; /* confirm */
+            else {
+                rvip_pick = (k == '4') ? '<' : '>'; /* back / switch list */
+                popup = -1;
+                return -1;
+            }
+        }
+        if (lm == 2 && i == p->nitems) {
+            int j, want = 0;
+
+            if (pop_cur >= 0 && (k == '+' || k == '-' || k == '*')) {
+                rvip_pick = k == '+' ? 'm' : k == '-' ? 'd' : 'x';
+                k = '\n';
+            } else if (k >= 1 && k <= 26 && k != '\n')
+                rvip_pick = 'x', want = k + 'a' - 1; /* Ctrl+letter */
+            else if (k >= 'A' && k <= 'Z')
+                rvip_pick = 'd', want = lowc(k);     /* Shift+letter */
+            if (want) {
+                for (j = 0; j < p->nitems; j++)
+                    if (p->items[j].id.a_void && p->items[j].ch == want)
+                        break;
+                if (j < p->nitems) {
+                    pop_cur = j;
+                    k = '\n';
+                } else
+                    rvip_pick = 0;
+            }
+            if (k != '\n' && k != ' ' && k != '2' && k != '8'
+                && !(!iflags.num_pad && (k == 'j' || k == 'k'))) {
+                for (j = 0; j < p->nitems; j++)
+                    if (p->items[j].id.a_void && p->items[j].ch == k)
+                        break;
+                if (j == p->nitems) { /* any other key: a normal command */
+                    pushed_key = k;
+                    popup = -1;
+                    return -1;
+                }
+                rvip_pick = 'm'; /* letter: the main action */
+            }
+        } else if (lm == 2)
+            rvip_pick = 'm'; /* the item's letter: its main action */
         if (how == PICK_NONE) {
             if ((k == ' ' || k == '>') && pop_top + rows < p->nitems)
                 pop_top += rows;
@@ -710,7 +763,8 @@ menu_item **sel;
             }
             break;
         }
-        if (k == 'j' || k == '2' || k == 'k' || k == '8') {
+        if (i == p->nitems && (k == '2' || k == '8'
+                               || (!iflags.num_pad && (k == 'j' || k == 'k')))) {
             int d = (k == 'j' || k == '2') ? 1 : -1;
 
             for (i = pop_cur + d; i >= 0 && i < p->nitems; i += d)

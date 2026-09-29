@@ -1534,6 +1534,19 @@ boolean without_asking;
     }
 }
 
+/* RVIP: examine an item from the inventory list: its name, then the
+   encyclopedia entry for it when data.base has one */
+void
+rvip_lookup(obj)
+struct obj *obj;
+{
+    char buf[BUFSZ];
+
+    pline("%s.", upstart(doname(obj)));
+    Strcpy(buf, cxname_singular(obj));
+    checkfile(buf, (struct permonst *) 0, FALSE, TRUE, (char *) 0);
+}
+
 /* the '/' command */
 int
 dowhatis()

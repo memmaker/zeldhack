@@ -3374,6 +3374,8 @@ struct ext_func_tab extcmdlist[] = {
     { 'Z', "cast", "zap (cast) a spell", docast, IFBURIED },
     { M('c'), "chat", "talk to someone", dotalk, IFBURIED | AUTOCOMPLETE },
     { 'c', "close", "close a door", doclose },
+    { '\r', "commandmenu", "menu of all commands (Enter)",
+            docmdmenu, IFBURIED | GENERALCMD },
     { M('C'), "conduct", "list voluntary challenges you have maintained",
             doconduct, IFBURIED | AUTOCOMPLETE },
     { M('d'), "dip", "dip an object into something", dodip, AUTOCOMPLETE },
@@ -3718,6 +3720,73 @@ boolean *keys_used; /* boolean keys_used[256] */
         }
     }
     return count;
+}
+
+/* RVIP: Enter shows every command, grouped as dokeylist() groups them,
+   with the key of the current keyset (Cmd.commands[] follows number_pad) */
+int
+docmdmenu(VOID_ARGS)
+{
+    static const struct {
+        const char *hdr;
+        int incl, excl;
+    } grp[] = {
+        { "General commands", GENERALCMD, WIZMODECMD },
+        { "Game commands", 0, GENERALCMD | WIZMODECMD },
+        { "Wizard-mode commands", WIZMODECMD, 0 },
+    };
+    const struct ext_func_tab *ec;
+    winid win;
+    anything any;
+    menu_item *sel;
+    char buf[BUFSZ], kbuf[QBUFSZ];
+    int g, k, n, key;
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    for (g = 0; g < SIZE(grp); g++) {
+        if (grp[g].incl == WIZMODECMD && !wizard)
+            continue;
+        add_menu(win, NO_GLYPH, &zeroany, 0, 0, iflags.menu_headings,
+                 grp[g].hdr, MENU_UNSELECTED);
+        for (ec = extcmdlist; ec->ef_txt; ec++) {
+            if ((grp[g].incl && !(ec->flags & grp[g].incl))
+                || (ec->flags & grp[g].excl) || ec->ef_funct == docmdmenu
+#ifdef WEB_GRAPHICS /* no shell and no job control in a browser */
+                || !strcmp(ec->ef_txt, "shell")
+                || !strcmp(ec->ef_txt, "suspend")
+#endif
+                )
+                continue;
+            for (key = 0, k = 1; k < 256 && !key; k++)
+                if (Cmd.commands[k] == ec && k != '\r')
+                    key = k;
+            if (key == ' ' && !flags.rest_on_space)
+                key = 0;
+            if (key)
+                Sprintf(buf, "%-6s %s", key2txt((uchar) key, kbuf),
+                        ec->ef_desc);
+            else
+                Sprintf(buf, "#%-5s %s", ec->ef_txt, ec->ef_desc);
+            any = zeroany;
+            any.a_int = (int) (ec - extcmdlist) + 1;
+            /* the command's own key picks it (group accelerator) */
+            add_menu(win, NO_GLYPH, &any, 0, (char) key, ATR_NONE, buf,
+                     MENU_UNSELECTED);
+        }
+    }
+    end_menu(win, "Commands");
+    n = select_menu(win, PICK_ONE, &sel);
+    destroy_nhwindow(win);
+    if (n <= 0)
+        return 0;
+    ec = &extcmdlist[sel[0].item.a_int - 1];
+    free((genericptr_t) sel);
+    if (u.uburied && !(ec->flags & IFBURIED)) {
+        You_cant("do that while you are buried!");
+        return 0;
+    }
+    return (*ec->ef_funct)();
 }
 
 /* list all keys and their bindings, like dat/hh but dynamic */

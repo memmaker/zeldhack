@@ -3286,7 +3286,7 @@ rvip_step()
     return 0;
 }
 
-STATIC_OVL struct monst *
+struct monst *
 rvip_in_view()
 {
     struct monst *mtmp;

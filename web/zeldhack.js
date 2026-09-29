@@ -82,9 +82,11 @@
 	}
 	/* rows "tile \t letter \t 0|1 selected, 2 heading \t colour \t symbol \t text" (winweb.h) */
 	function rowsHtml(t, cur) {
-		return t.split('\n').filter(function (l, i, a) { return l || i < a.length - 1; }).map(function (l, i) {
+		var ls = t.split('\n').filter(function (l, i, a) { return l || i < a.length - 1; });
+		var lettered = ls.some(function (l) { var f = l.split('\t'); return f[2] !== '2' && f[1] !== ' '; });   /* no letters at all: no indent */
+		return ls.map(function (l, i) {
 			var f = l.split('\t'), text = f.slice(5).join('\t'), sel = +f[2];
-			var h = sel === 2 ? '' : f[1] === ' ' ? '    ' : esc(f[1]) + (sel ? ' + ' : ' - ');   /* no letter: keyed by symbol */
+			var h = sel === 2 ? '' : f[1] === ' ' ? (lettered ? '    ' : '') : esc(f[1]) + (sel ? ' + ' : ' - ');   /* no letter: keyed by symbol */
 			return '<div class="row' + (i === cur ? ' cur' : '') + (sel === 2 ? '' : ' pick') + '" data-i="' + i + '" style="color:' + PAL[+f[3]] + '">' +
 				h + icon(+f[0], +f[4]) + esc(text) + '</div>';
 		}).join('');

@@ -1652,7 +1652,10 @@ register const char *let, *word;
         cnt = 0;
         cntgiven = FALSE;
         Sprintf(qbuf, "What do you want to %s?", word);
-        if (in_doagain)
+        if (rvip_prelet) { /* RVIP: the item chosen in the inventory list */
+            ilet = rvip_prelet;
+            rvip_prelet = 0;
+        } else if (in_doagain)
             ilet = readchar();
         else if (iflags.force_invmenu) {
             /* don't overwrite a possible quitchars */
@@ -1732,9 +1735,38 @@ register const char *let, *word;
 
             if (ilet == '?' && !*lets && *altlets)
                 allowed_choices = altlets;
-            ilet = display_pickinv(allowed_choices, *qbuf ? qbuf : (char *) 0,
-                                   menuquery,
-                                   TRUE, allowcnt ? &ctmp : (long *) 0);
+            /* RVIP: 4/6 (or left/right) switch the list: likely, worn, all */
+            {
+                static const char *const tabn[] = { "likely", "worn", "all" };
+                char worn[52 + 1], mq[QBUFSZ];
+                int tab = allowed_choices ? 0 : 2, wn = 0;
+
+                for (otmp = invent; otmp; otmp = otmp->nobj)
+                    if ((is_worn(otmp) || tool_in_use(otmp)) && wn < 52)
+                        worn[wn++] = otmp->invlet;
+                worn[wn] = '\0';
+                for (;;) {
+                    if (*menuquery)
+                        Sprintf(mq, "%s (%s list; 4/6 switch)", menuquery,
+                                tabn[tab]);
+                    else
+                        mq[0] = '\0';
+                    rvip_listmode = 1;
+                    ilet = display_pickinv(tab == 0 ? allowed_choices
+                                           : tab == 1 ? worn : (char *) 0,
+                                           *qbuf ? qbuf : (char *) 0, mq,
+                                           TRUE,
+                                           allowcnt ? &ctmp : (long *) 0);
+                    rvip_listmode = 0;
+                    if (ilet != '\033' || (rvip_pick != '<' && rvip_pick != '>'))
+                        break;
+                    do
+                        tab = (tab + (rvip_pick == '>' ? 1 : 2)) % 3;
+                    while ((tab == 1 && !wn)
+                           || (tab == 0 && !allowed_choices));
+                    rvip_pick = 0;
+                }
+            }
             if (!ilet)
                 continue;
             if (ilet == HANDS_SYM)
@@ -2513,11 +2545,272 @@ long quan;       /* if non-0, print this quantity, not obj->quan */
 }
 
 /* the 'i' command */
+/* ---- RVIP: inventory list with a cursor and item actions ---- */
+char rvip_pick = 0;     /* how a list row was chosen (winweb): 'm' main
+                           action, 'd' drop, 'x' examine, 0 action menu,
+                           '<' / '>' switch list */
+char rvip_prelet = 0;   /* item the next getobj() takes without asking */
+int rvip_listmode = 0;  /* 1 item prompt, 2 inventory list, 3 item menu */
+boolean rvip_reopen = FALSE; /* show the list again after the action */
+static int rvip_tab = 0;     /* 0 inventory, 1 equipment, 2 floor */
+static boolean rvip_keeptab = FALSE;
+
+struct rvip_act {
+    int NDECL((*fn));
+    const char *name;
+};
+enum { RA_EXAMINE = 0, RA_PICKUP, RA_APPLY, RA_ZAP, RA_READ, RA_EAT,
+       RA_QUAFF, RA_WEAR, RA_TAKEOFF, RA_PUTON, RA_REMOVE, RA_WIELD,
+       RA_QUIVER, RA_THROW, RA_ENGRAVE, RA_RUB, RA_INVOKE, RA_TIP, RA_DIP,
+       RA_ADJUST, RA_CALL, RA_DROP, RA_N };
+static const struct rvip_act rvip_acts[RA_N] = {
+    { dowhatis, "Examine" }, { dopickup, "Pick up" }, { doapply, "Apply" },
+    { dozap, "Zap" }, { doread, "Read" }, { doeat, "Eat" },
+    { dodrink, "Quaff" }, { dowear, "Wear" }, { dotakeoff, "Take off" },
+    { doputon, "Put on" }, { doremove, "Remove" }, { dowield, "Wield" },
+    { dowieldquiver, "Ready in quiver" }, { dothrow, "Throw" },
+    { doengrave, "Engrave with" }, { dorub, "Rub" }, { doinvoke, "Invoke" },
+    { dotip, "Tip out" }, { dodip, "Dip" }, { doorganize, "Adjust letter" },
+    { docallcmd, "Name / call" }, { dodrop, "Drop" },
+};
+
+/* every action that fits the item, main action first; returns the count */
+STATIC_OVL int
+rvip_fits(obj, floor, out)
+struct obj *obj;
+boolean floor;
+int *out;
+{
+    int n = 0, oc = obj->oclass, ot = obj->otyp;
+    boolean worn = (obj->owornmask & (W_ARMOR | W_ACCESSORY)) != 0L;
+    boolean tool = (oc == TOOL_CLASS || is_pick(obj) || is_axe(obj)
+                    || is_pole(obj) || ot == BULLWHIP || ot == POT_OIL
+                    || ot == CREAM_PIE || ot == EUCALYPTUS_LEAF
+                    || ot == TOUCHSTONE || ot == LUMP_OF_ROYAL_JELLY);
+
+    if (floor) {
+        out[n++] = RA_PICKUP;
+        if (oc == FOOD_CLASS)
+            out[n++] = RA_EAT;
+        if (Is_container(obj))
+            out[n++] = RA_TIP;
+        out[n++] = RA_EXAMINE;
+        return n;
+    }
+    /* main action: devices before eating */
+    if (oc == WAND_CLASS)
+        out[n++] = RA_ZAP;
+    else if (oc == ARMOR_CLASS)
+        out[n++] = worn ? RA_TAKEOFF : RA_WEAR;
+    else if (oc == RING_CLASS || oc == AMULET_CLASS
+             || ot == BLINDFOLD || ot == TOWEL || ot == LENSES)
+        out[n++] = worn ? RA_REMOVE : RA_PUTON;
+    if (tool)
+        out[n++] = RA_APPLY;
+    if (oc == SCROLL_CLASS || oc == SPBOOK_CLASS || ot == FORTUNE_COOKIE
+        || ot == T_SHIRT || ot == HAWAIIAN_SHIRT)
+        out[n++] = RA_READ;
+    if (oc == FOOD_CLASS)
+        out[n++] = RA_EAT;
+    if (oc == POTION_CLASS)
+        out[n++] = RA_QUAFF;
+    if ((oc == WEAPON_CLASS || is_weptool(obj)) && obj != uwep)
+        out[n++] = RA_WIELD;
+    out[n++] = RA_EXAMINE; /* the main action when nothing else fits */
+    if ((oc == WEAPON_CLASS || oc == GEM_CLASS) && obj != uquiver)
+        out[n++] = RA_QUIVER;
+    if (oc == WEAPON_CLASS || oc == GEM_CLASS || oc == POTION_CLASS
+        || ot == CREAM_PIE || ot == BOOMERANG)
+        out[n++] = RA_THROW;
+    if (oc != WEAPON_CLASS && !is_weptool(obj) && obj != uwep
+        && oc != COIN_CLASS && !worn)
+        out[n++] = RA_WIELD;
+    if (oc == WAND_CLASS || oc == GEM_CLASS || oc == RING_CLASS
+        || ot == MAGIC_MARKER || ot == TOWEL || is_blade(obj))
+        out[n++] = RA_ENGRAVE;
+    if (ot == OIL_LAMP || ot == MAGIC_LAMP || ot == BRASS_LANTERN
+        || oc == GEM_CLASS)
+        out[n++] = RA_RUB;
+    if (obj->oartifact || ot == CRYSTAL_BALL)
+        out[n++] = RA_INVOKE;
+    if (Is_container(obj))
+        out[n++] = RA_TIP;
+    if (oc != COIN_CLASS)
+        out[n++] = RA_DIP;
+    out[n++] = RA_ADJUST;
+    if (oc != COIN_CLASS)
+        out[n++] = RA_CALL;
+    out[n++] = RA_DROP;
+    /* drop duplicates (wield / apply can be listed twice) */
+    {
+        int i, j, m = 0;
+
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < m && out[j] != out[i]; j++)
+                ;
+            if (j == m)
+                out[m++] = out[i];
+        }
+        n = m;
+    }
+    return n;
+}
+
+/* the item menu: every fitting action with its key; -1 = back */
+STATIC_OVL int
+rvip_actmenu(obj, floor)
+struct obj *obj;
+boolean floor;
+{
+    int acts[RA_N], n, i, pick = -1;
+    winid win;
+    anything any;
+    menu_item *sel;
+    char buf[BUFSZ], key, qbuf[QBUFSZ];
+
+    n = rvip_fits(obj, floor, acts);
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    for (i = 0; i < n; i++) {
+        key = cmd_from_func(rvip_acts[acts[i]].fn);
+        if (acts[i] == RA_EXAMINE)
+            key = '/';
+        Sprintf(buf, "%-4s %s", key ? visctrl(key) : "", rvip_acts[acts[i]].name);
+        any = zeroany;
+        any.a_int = acts[i] + 1;
+        add_menu(win, NO_GLYPH, &any, 0, key, ATR_NONE, buf,
+                 MENU_UNSELECTED);
+    }
+    Sprintf(qbuf, "Do what with %s?", the(cxname(obj)));
+    end_menu(win, qbuf);
+    rvip_listmode = 3;
+    if (select_menu(win, PICK_ONE, &sel) > 0) {
+        pick = sel[0].item.a_int - 1;
+        free((genericptr_t) sel);
+    }
+    rvip_listmode = 0;
+    destroy_nhwindow(win);
+    return pick;
+}
+
+STATIC_OVL int
+rvip_invlist()
+{
+    static const char *const tabn[] = { "Inventory", "Equipment", "Floor" };
+    struct obj *otmp, *list;
+    winid win;
+    anything any;
+    menu_item *sel;
+    char title[QBUFSZ], classes[MAXOCLASSES + 2], pick;
+    const char *cls;
+    int n, act, acts[RA_N], res;
+    boolean floor, any_row;
+
+    for (;;) {
+        floor = (rvip_tab == 2);
+        list = floor ? (u.uswallow ? (struct obj *) 0
+                        : level.objects[u.ux][u.uy]) : invent;
+        win = create_nhwindow(NHW_MENU);
+        start_menu(win);
+        any_row = FALSE;
+        if (!flags.invlet_constant)
+            reassign();
+        /* classes in inv_order (then venom); the floor in pile order */
+        Sprintf(classes, "%s%c", flags.inv_order, VENOM_CLASS);
+        for (cls = floor ? "" : classes; floor || *cls; cls++) {
+            boolean head = FALSE;
+
+            for (otmp = list; otmp;
+                 otmp = floor ? otmp->nexthere : otmp->nobj) {
+                if (!floor) {
+                    if (otmp->oclass != *cls)
+                        continue;
+                    if (rvip_tab == 1 && !is_worn(otmp) && !tool_in_use(otmp))
+                        continue;
+                    if (!head) {
+                        add_menu(win, NO_GLYPH, &zeroany, 0, 0,
+                                 iflags.menu_headings,
+                                 let_to_name(otmp->oclass, FALSE, FALSE),
+                                 MENU_UNSELECTED);
+                        head = TRUE;
+                    }
+                }
+                any = zeroany;
+                any.a_obj = otmp;
+                add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any,
+                         floor ? 0 : otmp->invlet, 0, ATR_NONE, doname(otmp),
+                         MENU_UNSELECTED);
+                any_row = TRUE;
+            }
+            if (floor)
+                break;
+        }
+        if (!any_row)
+            add_menu(win, NO_GLYPH, &zeroany, 0, 0, ATR_NONE,
+                     floor ? "(nothing here)" : rvip_tab == 1
+                     ? "(nothing worn or wielded)" : "(not carrying anything)",
+                     MENU_UNSELECTED);
+        Sprintf(title, "%s  (4/6: %s, %s)", tabn[rvip_tab],
+                tabn[(rvip_tab + 2) % 3], tabn[(rvip_tab + 1) % 3]);
+        end_menu(win, title);
+        rvip_listmode = 2;
+        rvip_pick = 0;
+        n = select_menu(win, PICK_ONE, &sel);
+        rvip_listmode = 0;
+        pick = rvip_pick;
+        destroy_nhwindow(win);
+        if (n <= 0) {
+            if (pick == '<' || pick == '>') {
+                rvip_tab = (rvip_tab + (pick == '>' ? 1 : 2)) % 3;
+                continue;
+            }
+            return 0;
+        }
+        otmp = sel[0].item.a_obj;
+        free((genericptr_t) sel);
+        (void) rvip_fits(otmp, floor, acts);
+        if (!pick) {
+            if ((act = rvip_actmenu(otmp, floor)) < 0)
+                continue; /* back to the list */
+        } else
+            act = (pick == 'x') ? RA_EXAMINE
+                  : (pick == 'd' && !floor) ? RA_DROP : acts[0];
+        rvip_reopen = TRUE;
+        if (act == RA_EXAMINE) {
+            rvip_lookup(otmp);
+            return 0;
+        }
+        if (!floor)
+            rvip_prelet = otmp->invlet;
+        res = (*rvip_acts[act].fn)();
+        rvip_prelet = 0;
+        return res;
+    }
+}
+
+/* moveloop: the command that shows the list again after an item action,
+   or 0 (read a key); not while a hostile monster is in view */
+char *
+rvip_reopen_cmd()
+{
+    static char cmd[2];
+
+    if (!rvip_reopen)
+        return (char *) 0;
+    rvip_reopen = FALSE;
+    if (rvip_in_view() || multi || u.uswallow || !(cmd[0] = cmd_from_func(ddoinv)))
+        return (char *) 0;
+    rvip_keeptab = TRUE;
+    return cmd;
+}
+
 int
 ddoinv()
 {
-    (void) display_inventory((char *) 0, FALSE);
-    return 0;
+    if (!rvip_keeptab)
+        rvip_tab = 0;
+    rvip_keeptab = FALSE;
+    return rvip_invlist();
 }
 
 /*
@@ -3890,8 +4183,11 @@ doprinuse()
     lets[ct] = '\0';
     if (!ct)
         You("are not wearing or wielding anything.");
-    else
-        (void) display_inventory(lets, FALSE);
+    else { /* RVIP: the equipment tab of the inventory list */
+        rvip_tab = 1;
+        rvip_keeptab = TRUE;
+        return ddoinv();
+    }
     return 0;
 }
 

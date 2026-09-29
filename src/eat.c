@@ -3097,6 +3097,7 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
 
     /* if we can't touch floor objects then use invent food only */
     if (iflags.menu_requested /* command was preceded by 'm' prefix */
+        || rvip_prelet /* RVIP: item chosen from the inventory list */
         || !can_reach_floor(TRUE) || (feeding && u.usteed)
         || (is_pool_or_lava(u.ux, u.uy)
             && (Wwalking || is_clinger(youmonst.data)

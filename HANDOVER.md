@@ -35,8 +35,7 @@
   - Not yet baked in: `zeldhack/nethackrc` options, sounds (`SOUND=MESG` must become
     action hooks, rule 8), music, explore/stairs/Enter menu, autosave (SELF_RECOVER).
     Untested: save + reload, `S` in the browser, IDBFS round trip.
-- **Stage 2 (explore + stairs + no --More--) done in the cloud.** **Next: stage 3**
-  (Enter menu + inventory).
+- Stage 2 (explore + stairs + no --More--) done in the cloud.
   - `~` = `autoexplore` (extcmd in src/cmd.c; `~` unused in 3.6.7 with number_pad
     off or on). Code at the end of `src/hack.c` (`rvip_*`), hook in `moveloop`
     (`if (!rvip_continue()) rhack(0)`), `<`/`>` in `src/do.c` doup/dodown: off the
@@ -63,3 +62,35 @@
     (walk code is shared with `<`).
   - Open: pet swaps/pickups stop explore (every message stops); the dog "in the
     way" stops it often. Visual check of step painting: todo on Mac.
+- **Stage 3 (Enter menu + inventory) done in the cloud.** **Next: stage 4** (tiles).
+  - Enter = extcmd `commandmenu` bound to `'\r'` (JS sends Return as 13; Ctrl+J
+    stays 10 = vi run south). `docmdmenu()` in src/cmd.c: groups as `dokeylist()`
+    (General / Game / Wizard-mode), key by reverse lookup in `Cmd.commands[]`
+    (follows number_pad), unbound commands as `#name`; the key is the row's group
+    accelerator; shell/suspend left out. No movement rows (3.6 keeps moves out of
+    `Cmd.commands`). Enter has no other meaning at the command prompt.
+  - Inventory: `ddoinv`/`doprinuse` (`i`, `*`) -> `rvip_invlist()` at the end of the
+    RVIP block in src/invent.c: tabs Inventory / Equipment / Floor (4/6 or arrows),
+    letter = main action (`rvip_fits()`: zap, wear/take off, put on/remove, apply,
+    read, eat, quaff, wield, else examine), Shift+letter drop, Ctrl+letter examine,
+    numpad + - *, Enter/Space/5/click = item menu (`rvip_actmenu`, keys from
+    `cmd_from_func`, 4 back / 6 confirm, Esc back to the list). Other keys close the
+    list and run as commands (winweb `pushed_key`). Examine = `rvip_lookup()` in
+    pager.c (doname + data.base entry).
+  - Actions run the real command with a preselect: `rvip_prelet` is taken by
+    `getobj()` first; floor prompts skipped for it in `floorfood()` and `dodrink()`.
+    List reopens after the action via `rvip_reopen_cmd()` in moveloop (not with a
+    hostile in view, `multi`, or engulfed).
+  - Item prompts: `force_invmenu` on (winweb init), so every `getobj()` shows the
+    list with cursor; 4/6 switch likely / worn / all; letters, `-`, `*` as before.
+    winweb: `rvip_listmode` 1/2/3 tells `web_select_menu` which keys apply; arrows
+    are 8/2/4/6 in any pop-up; j/k move only without number_pad; a real
+    accelerator always wins. WIN_INVEN picks (lets = all) now pop up.
+  - Pop-ups: WM-sized (`RvipWM.popup`); rows without letters are not indented.
+  - Tested (Playwright, number_pad 0 and 2): menu, run by cursor+5 and by key,
+    tabs, eat by letter and `+`, drop by Shift+letter and `-`, examine by Ctrl+letter
+    and `*`, item menus, wield/apply/drop prompts with cursor and tab switch, `0`.
+  - Open: floor tab in item prompts not done (floor food still via the y/n); no
+    "@-tags" in NetHack 3.6. Reopen suppression with a hostile in view untested.
+    Once saw an unexplained "e - a pick-axe." pickup message after closing a
+    pop-up (not reproduced in 5 reruns). Visual check in the pane: todo on Mac.

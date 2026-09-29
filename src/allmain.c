@@ -433,7 +433,7 @@ boolean resuming;
             ckmailstatus();
 #endif
             if (!rvip_continue())
-                rhack((char *) 0);
+                rhack(rvip_reopen_cmd()); /* RVIP: 0 = read a key */
         }
         if (u.utotype)       /* change dungeon level */
             deferred_goto(); /* after rhack() */

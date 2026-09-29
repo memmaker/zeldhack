@@ -494,7 +494,10 @@ dodrink()
         pline("If you can't breathe air, how can you drink liquid?");
         return 0;
     }
-    /* Is there a fountain to drink from here? */
+    /* Is there a fountain to drink from here? (RVIP: not for an item
+       chosen from the inventory list) */
+    if (rvip_prelet)
+        goto rvip_item;
     if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)
         /* not as low as floor level but similar restrictions apply */
         && can_reach_floor(FALSE)) {
@@ -520,6 +523,7 @@ dodrink()
         }
     }
 
+rvip_item:
     otmp = getobj(beverages, "drink");
     if (!otmp)
         return 0;
