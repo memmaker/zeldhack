@@ -8,13 +8,14 @@ set -e
 cd "$(dirname "$0")/.."
 B=web/b32
 rm -rf "$B" && mkdir -p "$B/src" "$B/tools"
-git ls-files -z include src util dat win/share sys/share sys/unix/sysconf | xargs -0 cp --parents -t "$B"
+git ls-files -z include src util dat win/share sys/share sys/unix/sysconf | rsync --from0 -R --files-from=- . "$B"/
 cp sys/share/dgn_lex.c sys/share/dgn_yacc.c sys/share/lev_lex.c sys/share/lev_yacc.c "$B/util/"
 cp sys/share/dgn_comp.h sys/share/lev_comp.h "$B/include/"
 cp sys/unix/sysconf "$B/dat/" 2>/dev/null || true
+[ -f dat/Makefile ] || (cd sys/unix && sh setup.sh hints/linux >/dev/null)   # ignored generated Makefiles
 cp dat/Makefile "$B/dat/Makefile"   # made by sys/unix/setup.sh
 # wasm traps on the 2-arg vs 3-arg fopen_datafile the native tools get away with
-sed -i 's/fopen_datafile, (const char \*, const char \*))/fopen_datafile, (const char *, const char *, int))/; s/^const char \*filename, \*mode;/const char *filename, *mode;\nint prefix UNUSED;/; s/^fopen_datafile(filename, mode)/fopen_datafile(filename, mode, prefix)/' "$B/util/dlb_main.c"
+perl -pi -e 's/fopen_datafile, \(const char \*, const char \*\)\)/fopen_datafile, (const char *, const char *, int))/; s/^const char \*filename, \*mode;/const char *filename, *mode;\nint prefix UNUSED;/; s/^fopen_datafile\(filename, mode\)/fopen_datafile(filename, mode, prefix)/' "$B/util/dlb_main.c"
 cd "$B"
 CF="-O1 -w -Iinclude -DDLB -DSYSCF -DSECURE -DTEXT_TOMBSTONE"
 LF="-sNODERAWFS -sEXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=1048576"
