@@ -8,7 +8,7 @@ set -e
 cd "$(dirname "$0")/.."
 OUT=web/dist SEED=web/seed
 # web/b32 is a copy of the tree: redo it when a tracked source is newer
-if [ ! -f web/b32/dat/nhdat ] || [ -n "$(git ls-files include src dat win/share | xargs sh -c 'find "$@" -newer web/b32/dat/nhdat' sh | head -1)" ]; then
+if [ ! -f web/b32/dat/nhdat ] || [ -n "$(git ls-files include src dat win/share web/mkdata.sh | xargs sh -c 'find "$@" -newer web/b32/dat/nhdat' sh | head -1)" ]; then
     rm -rf web/b32 && sh web/mkdata.sh
 fi
 B=web/b32

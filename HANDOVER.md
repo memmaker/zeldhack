@@ -62,7 +62,7 @@
     (walk code is shared with `<`).
   - Open: pet swaps/pickups stop explore (every message stops); the dog "in the
     way" stops it often. Visual check of step painting: todo on Mac.
-- **Stage 3 (Enter menu + inventory) done in the cloud.** **Next: stage 4** (tiles).
+- **Stage 3 (Enter menu + inventory) done in the cloud.**
   - Enter = extcmd `commandmenu` bound to `'\r'` (JS sends Return as 13; Ctrl+J
     stays 10 = vi run south). `docmdmenu()` in src/cmd.c: groups as `dokeylist()`
     (General / Game / Wizard-mode), key by reverse lookup in `Cmd.commands[]`
@@ -94,3 +94,28 @@
     "@-tags" in NetHack 3.6. Reopen suppression with a hostile in view untested.
     Once saw an unexplained "e - a pick-axe." pickup message after closing a
     pop-up (not reproduced in 5 reruns). Visual check in the pane: todo on Mac.
+- **Stage 4 (tiles) done in the cloud.** **Next: stage 5** (web page and windows).
+  - One set: ZeldHack (LS Pixel) 16/32/64 (`tiles16.png`, `tiles.png`, `tiles64.png`,
+    40 per row, 1480 slots). Tiles button cycles ZeldHack 16 -> 32 -> 64 -> None;
+    stored by name as `tiles` in `/nethack/web-layout.json` (IDBFS), read in the
+    syncfs callback before the first sheet request (tested: after None + reload no
+    sheet is fetched; 16 after reload fetches only tiles16.png). `loadSheet()` drops
+    late onloads (generation counter + None check). Switch resets auto cell size.
+    Auto cell = whole multiple of the sheet size when it fits, else the fitted size.
+  - Coverage: 5991 glyphs -> 1407 distinct tiles (0..1474), `total_tiles_used` 1475
+    <= 1480 slots; every used slot non-blank except 850 (dark part of a room,
+    black on purpose); 394 monster tiles all distinct = 100 %; objects/features
+    100 % (89 identical pairs, all same-appearance: scroll labels, gems by colour,
+    bag/lamp/horn kinds, door orientations; none tells a kind apart).
+  - Fixed: statues were the plain statue object (845); the sheets hold grayscale
+    statue tiles at 1082.. -> mkdata.sh runs tilemap with
+    `-DSTATUES_LOOK_LIKE_MONSTERS`. Fixed: USE_TILES was off, so `shuffle_tiles()`
+    never ran and random appearances showed the default (revealing) tile ->
+    `include/global.h` defines USE_TILES for WEB_GRAPHICS (also enables sokoban/knox
+    `substitute_tiles`). Verified: ring of invisibility shows coral, etc.
+  - Hero = role monster tile; inventory icons are 16 px background crops of the
+    current sheet (`--ti` CSS var) for every size. Build redoes web/b32 when
+    web/mkdata.sh changes too.
+  - Open: map cell is 12 px in the default layout (80 cols don't fit; stage 5).
+    Reload mid-game asks "Destroy old game?" and Enter = n ends it (lock file;
+    stage 5/5.10 autosave). Visual check in the pane: todo on Mac.

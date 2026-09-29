@@ -18,10 +18,12 @@
 
 	var events = [], lastSync = 0;
 	var cells = null, chars = null, hero = { x: 0, y: 0, lev: -1 }, off = { x: 0, y: 0 };
-	var cv, ctx, cell = 32, auto = true, sheet = new Image(), perRow = 40, TS = 32;
+	var cv, ctx, cell = 32, auto = true, sheet = null, sheetGen = 0, perRow = 40, TS = 32;
+	/* the one tile set (ZeldHack by LS Pixel) in three sizes, then text; stored by name */
+	var SETS = [['ZeldHack 16', 'tiles16.png'], ['ZeldHack 32', 'tiles.png'], ['ZeldHack 64', 'tiles64.png'], ['None', null]];
 	var dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 	var log = [], prompt = '', rects = {}, wm = null;
-	var L = { cell: 0, wm: null, text: false, face: '', mapFace: '', sound: false }, LAYOUT = DIR + '/web-layout.json';
+	var L = { cell: 0, wm: null, tiles: 'ZeldHack 32', text: false, face: '', mapFace: '', sound: false }, LAYOUT = DIR + '/web-layout.json';
 
 	function $(id) { return document.getElementById(id); }
 	function esc(t) { return t.replace(/[&<>]/g, function (c) { return '&' + (c === '&' ? 'amp' : c === '<' ? 'lt' : 'gt') + ';'; }); }
@@ -37,6 +39,7 @@
 	function fit() {       /* biggest cell that shows the whole map in its window */
 		var b = $('map'), best = 12;
 		for (var c = 12; c <= 64; c++) if (COLNO * c <= b.clientWidth && ROWNO * c <= b.clientHeight) best = c;
+		if (!L.text && sheet && best >= TS) return Math.floor(best / TS) * TS;   /* whole multiples of the sheet when it fits */
 		return best;
 	}
 	function draw() {
@@ -52,7 +55,7 @@
 					ctx.fillStyle = PAL[(k >> 8) & 15];
 					ctx.fillText(String.fromCharCode(k & 0xff), (tx + 0.5) * cell, (ty + 0.5) * cell + 1);
 				}
-		} else if (!sheet.complete || !sheet.width) return;
+		} else if (!sheet) return;
 		else for (var y = 0; y < ROWNO; y++)
 			for (var x = 0; x < COLNO; x++) {
 				var t = cells[y * COLNO + x];
@@ -65,7 +68,7 @@
 	}
 	/* a row's icon: the tile with tiles on, else the item's own map symbol (C sends both) */
 	function icon(t, sym) {
-		if (L.text || !sheet.width) return sym > 32 ? esc(String.fromCharCode(sym)) + ' ' : '';
+		if (L.text || !sheet) return sym > 32 ? esc(String.fromCharCode(sym)) + ' ' : '';
 		return tileSpan(t);
 	}
 	function tileSpan(t) {     /* a tile at text size, for menus and the inventory */
@@ -131,8 +134,6 @@
 	/* Audio: the game names the sounds (websound.c); this only mutes them */
 	function renderAudio() { $('chk-sound').checked = L.sound; }
 	function makeWM() {
-		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) L = { cell: s.cell | 0, wm: s.wm, text: !!s.text, face: s.face || '', mapFace: s.mapFace || '', sound: s.sound === true }; } catch (e) { }
-		if (s && L.wm && !L.wm.fs) L.wm.fs = s.fs || (s.font ? { msg: s.font, stat: s.font, inv: s.font } : undefined);   /* old layout: sizes move to the WM */
 		showMode(); renderAudio(); $('sel-font').value = L.face; loadFace(L.face); loadFace(L.mapFace);
 		if (L.cell >= 12 && L.cell <= 64) { cell = L.cell; auto = false; }
 		var H = $('game').clientHeight || 600, line = Math.ceil(RvipWM.fontSize('msg') * 1.4) + 6;
@@ -149,7 +150,34 @@
 		});
 		wm.apply();
 	}
-	function showMode() { $('btn-tiles').textContent = L.text ? 'Tiles: None' : 'Tiles: ZeldHack'; }
+	function showMode() { $('btn-tiles').textContent = 'Tiles: ' + L.tiles; }
+	function setIndex(n) { for (var i = 0; i < SETS.length; i++) if (SETS[i][0] === n) return i; return 1; }
+	/* load the chosen sheet; a late onload of an older choice (or after None) is ignored */
+	function loadSheet() {
+		var set = SETS[setIndex(L.tiles)], gen = ++sheetGen;
+		L.tiles = set[0]; L.text = !set[1];
+		sheet = null;
+		if (!set[1]) return;
+		var img = new Image();
+		img.onload = function () {
+			if (gen !== sheetGen || L.text) return;
+			sheet = img; perRow = 40; TS = img.width / perRow;
+			document.documentElement.style.setProperty('--ti', 'url(' + set[1] + ')');
+			if (cv && !$('game').hidden) { if (auto) { cell = fit(); measure(); scrollMap(true); } draw(); relist(); }
+		};
+		img.src = set[1];
+	}
+	/* Tiles button: 16 -> 32 -> 64 -> None -> 16; like a restart: sheet, cell size, lists */
+	function nextSet() {
+		L.tiles = SETS[(setIndex(L.tiles) + 1) % SETS.length][0];
+		auto = true; L.cell = 0;
+		loadSheet(); showMode(); renderMapSel(); saveLayout();
+		cell = fit(); measure(); scrollMap(true); draw(); relist();
+	}
+	function readLayout() {
+		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) L = { cell: s.cell | 0, wm: s.wm, tiles: s.tiles || (s.text ? 'None' : 'ZeldHack 32'), text: false, face: s.face || '', mapFace: s.mapFace || '', sound: s.sound === true }; } catch (e) { }
+		if (s && L.wm && !L.wm.fs) L.wm.fs = s.fs || (s.font ? { msg: s.font, stat: s.font, inv: s.font } : undefined);   /* old layout: sizes move to the WM */
+	}
 	function zoom(d) {
 		auto = false;
 		cell = Math.max(12, Math.min(64, cell + d));
@@ -274,6 +302,7 @@
 				try { FS.mkdir(SAVES); } catch (e) { }
 				var n = charName();
 				if (n) Module.arguments.push('-u', n);
+				readLayout(); loadSheet();     /* the stored tile set, before any sheet loads */
 				Module.removeRunDependency('idbfs');
 			});
 		}],
@@ -290,15 +319,13 @@
 	document.addEventListener('DOMContentLoaded', function () {
 		cv = document.querySelector('#map canvas');
 		ctx = cv.getContext('2d');
-		sheet.onload = function () { perRow = 40; TS = sheet.width / perRow; draw(); relist(); };
-		sheet.src = 'tiles.png';
 		cv.addEventListener('mousedown', onMapClick);
 		cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 		$('pop').addEventListener('mousedown', function (e) {
 			var r = e.target.closest('.row.pick');
 			if (r && app.running) { events.push(0x20000 | +r.dataset.i); e.preventDefault(); }
 		});
-		$('btn-tiles').onclick = function () { L.text = !L.text; showMode(); renderMapSel(); saveLayout(); draw(); relist(); };
+		$('btn-tiles').onclick = nextSet;
 		RvipWM.dropdown($('btn-file'), $('menu-file'));
 		RvipWM.dropdown($('btn-audio'), $('menu-audio'));
 		$('chk-sound').onchange = function () { L.sound = this.checked; saveLayout(); };

@@ -26,7 +26,8 @@ tool dgn_comp util/dgn_yacc.c util/dgn_lex.c util/dgn_main.c src/alloc.c util/pa
 tool lev_comp util/lev_yacc.c util/lev_lex.c util/lev_main.c src/alloc.c util/panic.c \
 	src/drawing.c src/decl.c src/monst.c src/objects.c
 tool dlb util/dlb_main.c src/dlb.c src/alloc.c util/panic.c
-tool tilemap win/share/tilemap.c
+# ZeldHack sheets hold the grayscale statue tiles (slots 1082..): as the Windows build
+tool tilemap -DSTATUES_LOOK_LIKE_MONSTERS win/share/tilemap.c
 (cd util && ./tilemap)
 # the dat Makefile calls ../util/{makedefs,lev_comp,dgn_comp,dlb}
 (cd dat && make -f Makefile all >/dev/null \

@@ -47,7 +47,7 @@
 	.row.cur { background: #32326e; }
 	#pop .pp { color: #ffff50; padding: 2px 4px 4px; white-space: pre-wrap; }
 	.ti { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin-right: 5px;
-		background-image: url(tiles.png); image-rendering: pixelated; }
+		background-image: var(--ti); image-rendering: pixelated; }
 	.so { background: #d7d7d7; color: #000; }
 	#map canvas { display: block; }
 	#pop { position: absolute; z-index: 3; background: #000; border: 1px solid var(--dim); box-shadow: 0 6px 24px rgba(0,0,0,.7);
@@ -105,7 +105,7 @@
 	</div>
 	<span class="sep"></span>
 	<button id="btn-layout" title="Windows: layout, show and hide">Windows ▾</button>
-	<button id="btn-tiles" title="Switch between tiles and text">Tiles: ZeldHack</button>
+	<button id="btn-tiles" title="Tile size: ZeldHack 16 / 32 / 64, or None (text)">Tiles: ZeldHack 32</button>
 	<select id="sel-font" title="Font for the text windows (the map has its own in text mode)"><option value="">Font: default</option></select>
 	<button id="btn-audio" title="Sound effects">Audio ▾</button>
 	<div id="menu-audio">
