@@ -1331,6 +1331,7 @@ int dieroll;
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));
 
+    ZSND(destroyed ? "hit2" : "hit1"); /* RVIP: hero hits / kills */
     return destroyed ? FALSE : TRUE;
 }
 
@@ -2334,6 +2335,7 @@ boolean wouldhavehit;
     if (wouldhavehit) /* monk is missing due to penalty for wearing suit */
         Your("armor is rather cumbersome...");
 
+    ZSND("swing2"); /* RVIP: hero misses */
     if (could_seduce(&youmonst, mdef, mattk))
         You("pretend to be friendly to %s.", mon_nam(mdef));
     else if (canspotmon(mdef) && flags.verbose)

@@ -131,6 +131,7 @@ register struct monst *mtmp;
             setnotworn(ygold);
         freeinv(ygold);
         add_to_minv(mtmp, ygold);
+        ZSND("leprechaun"); /* RVIP */
         Your("purse feels lighter.");
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, TRUE);

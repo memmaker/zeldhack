@@ -1154,6 +1154,7 @@ int how;
         Strcpy(killer.name, deaths[how]);
 
     if (how < PANICKED) {
+        ZSND("mort"); /* RVIP: death */
         u.umortality++;
         /* in case caller hasn't already done this */
         if (u.uhp != 0 || (Upolyd && u.mh != 0)) {

@@ -957,6 +957,23 @@ unsigned trflags;
             steed_article = ARTICLE_NONE;
     }
 
+    { /* RVIP: trap sounds (ZeldHack table) */
+        const char *s = 0;
+
+        switch (ttype) {
+        case ARROW_TRAP: case DART_TRAP: s = "hurt"; break;
+        case SQKY_BOARD: s = "board_squeak"; break;
+        case BEAR_TRAP: s = "beartrap"; break;
+        case SLP_GAS_TRAP: s = "sleep"; break;
+        case HOLE: case TRAPDOOR: s = "tomber"; break;
+        case LANDMINE: s = "destruction"; break;
+        case ROLLING_BOULDER_TRAP: s = "boulder"; break;
+        case MAGIC_TRAP: s = "magic1"; break;
+        default: break;
+        }
+        if (s)
+            ZSND(s);
+    }
     switch (ttype) {
     case ARROW_TRAP:
         if (trap->once && trap->tseen && !rn2(15)) {

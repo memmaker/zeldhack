@@ -69,6 +69,7 @@ STATIC_OVL void
 give_may_advance_msg(skill)
 int skill;
 {
+    ZSND("fanfare"); /* RVIP: skill can be advanced */
     You_feel("more confident in your %sskills.",
              (skill == P_NONE) ? ""
                  : (skill <= P_LAST_WEAPON) ? "weapon "

@@ -119,7 +119,7 @@
   - Open: map cell is 12 px in the default layout (80 cols don't fit; stage 5).
     Reload mid-game asks "Destroy old game?" and Enter = n ends it (lock file;
     stage 5/5.10 autosave). Visual check in the pane: todo on Mac.
-- **Stage 5 (web page and windows) done in the cloud.** **Next: stage 6** (docs and sound).
+- **Stage 5 (web page and windows) done in the cloud.**
   - Windows (rvip-wm): Map, Messages, Status, Inventory, Visible on by default;
     Equipment (worn/wielded, C `equip_list()`, id 8) via Windows ▾; no Recall.
     One window = only the map canvas showing the game's 80x24 screen (prompt row,
@@ -161,4 +161,34 @@
   - Open: one-window text uses square tile cells (wide letter spacing); shop not
     visited in tests; non-integer tile scale when the map window is < 12*32 px
     high; Visible lists only squares in sight (dark rooms: remembered items not listed).
+- **Stage 6 (docs and sound) done in the cloud.** **Next: stage 7** (publish).
+  - Help: `web/make-help.py` (self-contained, no Docs folder) -> `dist/help.html`
+    (build.sh). Complete key list parsed from `dat/cmdhelp` with the web defaults
+    (number_pad:2, no debug/shell/suspend, "unavailable" rows dropped) + Enter.
+    Credits: NetHack DevTeam (NGPL); ZeldHack assets by LSpixel
+    (lspixel.itch.io/zeldhack, found by web search; the page says its sounds are
+    "sourced from classic NES/Famicom games" - licence of the samples unclear,
+    user's call before publishing). Mac todo: turn it into a Docs GAMES/GUIDES entry.
+  - Keys in Help checked in the game (number_pad 2): h/? help, j jump, k kick,
+    _ travel, n count, ^X, ^P, ;, Enter menu, i/0, O, E, #, F, t, f, Z, a, ~, <, >.
+  - Sound: `ZSND("name")` macro (include/hack.h, no-op without WEB_GRAPHICS) at the
+    action sites -> `web_sound()` in winweb.c -> `RVIPSound.play(['norm_'+name])`.
+    64 events from the SOUND=MESG table (hit/kill/miss hero+monster, bites, doors
+    open/close/locked/kick, unlock/#force, stairs, gold, drop, boulder, traps by
+    type in dotrap, teleport, level up/skill, hunger/weak, eat/tin/rotten/vomit,
+    death, welcome, dig, bell/whistles/lamp, attribute up, spellbook, leprechaun,
+    god anger, buy, wish, zap magic missile/lightning, explosion, fountain quaff,
+    object breaks, armour destroyed, polymorph, ambient fountain/sink/vault,
+    pet/animal noises by msound in sounds.c `rvip_petsnd`). build.sh copies only
+    the referenced wavs (lines with ZSND/RVIP) to `dist/sound/norm_<name>.wav`
+    (spaces -> `_`), 41 MB; fetched lazily per name.
+  - Music volume 0.3 (was 0.6), `<audio>` created only when Music is switched on.
+  - Tested (Playwright): both toggles off by default and after reload (fresh);
+    no sound requests while off; after a real click on Sound effects every event
+    played (24 RVIPSound.play = 24 AudioBufferSource starts: entrance, bites, porte,
+    swing2, hit2, gold2, footsteps, lock, naiad, stairs, air); music mp3 requested
+    only after the real click; Help loads, Esc closes. The on/off choice is kept
+    in web-layout.json once changed.
+  - Open: entrance sound on reload is lost before the first user gesture
+    (AudioContext); many events untested individually (traps, whistles, shop).
 

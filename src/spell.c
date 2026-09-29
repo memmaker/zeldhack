@@ -581,6 +581,7 @@ register struct obj *spellbook;
         }
         spellbook->in_use = FALSE;
 
+        ZSND("book"); /* RVIP */
         You("begin to %s the runes.",
             spellbook->otyp == SPE_BOOK_OF_THE_DEAD ? "recite" : "memorize");
     }

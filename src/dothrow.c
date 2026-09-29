@@ -1970,6 +1970,8 @@ boolean from_invent;
 {
     boolean fracture = FALSE;
 
+    ZSND("shatter"); /* RVIP: object breaks */
+
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case MIRROR:
         if (hero_caused)

@@ -538,4 +538,14 @@ enum bodypart_types {
 #define DEVTEAM_EMAIL "devteam@nethack.org"
 #define DEVTEAM_URL "https://www.nethack.org/"
 
+/* RVIP web sound: game actions name the ZeldHack wav they play
+ * (zeldhack/sounds/norm_<name>.wav, the table of zeldhack/nethackrc
+ * SOUND=MESG); win/web/winweb.c hands the name to rvip-sound.js */
+#ifdef WEB_GRAPHICS
+extern void FDECL(web_sound, (const char *));
+#define ZSND(n) web_sound(n)
+#else
+#define ZSND(n) do { } while (0)
+#endif
+
 #endif /* HACK_H */

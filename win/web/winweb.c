@@ -81,6 +81,17 @@ EM_JS(void, js_map, (int *c, int *t, int hx, int hy, int lev),
       { Module.nh.map(c, t, hx, hy, lev); });
 EM_JS(void, js_text, (int id, const char *s),
       { Module.nh.text(id, UTF8ToString(s)); });
+EM_JS(void, js_sound, (const char *n), { if (window.RVIPSound) RVIPSound.play(['norm_' + UTF8ToString(n)], 1); });
+
+/* RVIP: one sound per game action (ZSND in hack.h); the page mutes it */
+void
+web_sound(name)
+const char *name;
+{
+    if (name && *name)
+        js_sound(name);
+}
+
 EM_JS(int, js_key, (int peek, int at_cmd), { return Module.nh.key(peek, at_cmd); });
 EM_ASYNC_JS(void, js_end, (void), { await Module.nh.end(); });
 

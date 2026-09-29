@@ -142,6 +142,7 @@ picklock(VOID_ARGS)
         return ((xlock.usedtime = 0));
     }
 
+    ZSND("disarm"); /* RVIP: lock picked */
     You("succeed in %s.", lock_action());
     if (xlock.door) {
         if (xlock.door->doormask & D_TRAPPED) {
@@ -252,6 +253,7 @@ forcelock(VOID_ARGS)
     if (rn2(100) >= xlock.chance)
         return 1; /* still busy */
 
+    ZSND("reussi"); /* RVIP */
     You("succeed in forcing the lock.");
     exercise(xlock.picktyp ? A_DEX : A_STR, TRUE);
     /* breakchestlock() might destroy xlock.box; if so, xlock context will
@@ -709,6 +711,8 @@ int x, y;
             mesg = " is locked";
             break;
         }
+        if (door->doormask == D_LOCKED)
+            ZSND("lock"); /* RVIP */
         pline("This door%s.", mesg);
         return res;
     }
@@ -720,6 +724,7 @@ int x, y;
 
     /* door is known to be CLOSED */
     if (rnl(20) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {
+        ZSND("porte"); /* RVIP */
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
             b_trapped("door", FINGER);
@@ -856,6 +861,7 @@ doclose()
         }
         if (u.usteed
             || rn2(25) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {
+            ZSND("porte"); /* RVIP */
             pline_The("door closes.");
             door->doormask = D_CLOSED;
             feel_newsym(x, y); /* the hero knows she closed it */

@@ -195,7 +195,7 @@
 	/* music: the ZeldHack ambience loop, off by default; browsers start it only after a key or click */
 	function playMusic() {
 		if (L.music) {
-			if (!music) { music = new Audio('music/ambience.mp3'); music.loop = true; music.volume = 0.6; }
+			if (!music) { music = new Audio('music/ambience.mp3'); music.loop = true; music.volume = 0.3; }
 			music.play().catch(function () { });
 		} else if (music) music.pause();
 	}

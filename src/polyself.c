@@ -599,6 +599,8 @@ int mntmp;
             was_blind = !!Blind, dochange = FALSE;
     int mlvl;
 
+    ZSND("polymorph"); /* RVIP: hero changes form */
+
     if (mvitals[mntmp].mvflags & G_GENOD) { /* allow G_EXTINCT */
         You_feel("rather %s-ish.", mons[mntmp].mname);
         exercise(A_WIS, TRUE);

@@ -402,6 +402,7 @@ dig(VOID_ARGS)
                     (void) rnd_treefruit_at(dpx, dpy);
             } else {
                 digtxt = "You succeed in cutting away some rock.";
+                ZSND("rocks"); /* RVIP */
                 lev->typ = CORR, lev->flags = 0;
             }
         } else if (IS_WALL(lev->typ)) {
@@ -417,6 +418,7 @@ dig(VOID_ARGS)
                 lev->typ = DOOR, lev->doormask = D_NODOOR;
             }
             digtxt = "You make an opening in the wall.";
+            ZSND("rockl"); /* RVIP */
         } else if (lev->typ == SDOOR) {
             cvt_sdoor_to_door(lev); /* ->typ = DOOR */
             digtxt = "You break through a secret door!";
@@ -1193,6 +1195,7 @@ struct obj *obj;
             context.digging.pos.y = u.uy;
             assign_level(&context.digging.level, &u.uz);
             context.digging.effort = 0;
+            ZSND("rockl"); /* RVIP */
             You("start %s downward.", verbing);
             if (*u.ushops)
                 shopdig(0);

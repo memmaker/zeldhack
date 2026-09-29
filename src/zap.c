@@ -4060,6 +4060,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
     spell_type = is_hero_spell(type) ? SPE_MAGIC_MISSILE + abstype : 0;
 
     fltxt = flash_types[(type <= -30) ? abstype : abs(type)];
+    if (abstype == ZT_MAGIC_MISSILE || abstype == ZT_LIGHTNING)
+        ZSND(abstype == ZT_LIGHTNING ? "lightning" : "missile"); /* RVIP */
     if (u.uswallow) {
         register int tmp;
 
@@ -5295,6 +5297,7 @@ makewish()
     if (flags.verbose)
         You("may wish for an object.");
  retry:
+    ZSND("wish"); /* RVIP */
     Strcpy(promptbuf, "For what do you wish");
     if (iflags.cmdassist && tries > 0)
         Strcat(promptbuf, " (enter 'help' for assistance)");

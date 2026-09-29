@@ -21,6 +21,35 @@ int rmtyp;
     return FALSE;
 }
 
+/* RVIP: the ZeldHack animal sounds by the monster's sound type;
+   kind 0 growl, 1 yelp, 2 whimper, 3 #chat */
+STATIC_OVL void
+rvip_petsnd(mtmp, kind)
+struct monst *mtmp;
+int kind;
+{
+    static const char *const bark[4] = { "bark", "yip", "dwhine", "bark" },
+                             *const mew[4] = { "yowl", "yowl", "mew", "mew" },
+                             *const neigh[4] = { "neigh", "whinny", "whicker",
+                                                 "neigh" };
+
+    if (Hallucination || Deaf)
+        return;
+    switch (mtmp->data->msound) {
+    case MS_BARK:
+        ZSND(bark[kind]);
+        break;
+    case MS_MEW:
+        ZSND(kind == 3 && mtmp->mtame ? "purr" : mew[kind]);
+        break;
+    case MS_NEIGH:
+        ZSND(neigh[kind]);
+        break;
+    default:
+        break;
+    }
+}
+
 void
 dosounds()
 {
@@ -41,13 +70,21 @@ dosounds()
             "bubbling water.", "water falling on coins.",
             "the splashing of a naiad.", "a soda fountain!",
         };
-        You_hear1(fountain_msg[rn2(3) + hallu]);
+        int k = rn2(3) + hallu;
+
+        if (k != 1 && k != 3)
+            ZSND(k ? "naiad" : "bubbs"); /* RVIP */
+        You_hear1(fountain_msg[k]);
     }
     if (level.flags.nsinks && !rn2(300)) {
         static const char *const sink_msg[3] = {
             "a slow drip.", "a gurgling noise.", "dishes being washed!",
         };
-        You_hear1(sink_msg[rn2(2) + hallu]);
+        int k = rn2(2) + hallu;
+
+        if (k < 2)
+            ZSND(k ? "gurgling" : "drip"); /* RVIP */
+        You_hear1(sink_msg[k]);
     }
     if (level.flags.has_court && !rn2(200)) {
         static const char *const throne_msg[4] = {
@@ -116,6 +153,7 @@ dosounds()
             }
                 /*FALLTHRU*/
             case 0:
+                ZSND("footsteps"); /* RVIP */
                 You_hear("the footsteps of a guard on patrol.");
                 break;
             case 2:
@@ -364,6 +402,7 @@ register struct monst *mtmp;
     else
         growl_verb = growl_sound(mtmp);
     if (growl_verb) {
+        rvip_petsnd(mtmp, 0);
         pline("%s %s!", Monnam(mtmp), vtense((char *) 0, growl_verb));
         if (context.run)
             nomul(0);
@@ -407,6 +446,7 @@ register struct monst *mtmp;
             break;
         }
     if (yelp_verb) {
+        rvip_petsnd(mtmp, 1);
         pline("%s %s!", Monnam(mtmp), vtense((char *) 0, yelp_verb));
         if (context.run)
             nomul(0);
@@ -441,6 +481,7 @@ register struct monst *mtmp;
             break;
         }
     if (whimper_verb) {
+        rvip_petsnd(mtmp, 2);
         pline("%s %s.", Monnam(mtmp), vtense((char *) 0, whimper_verb));
         if (context.run)
             nomul(0);
@@ -526,6 +567,8 @@ register struct monst *mtmp;
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
+    if (!Deaf)
+        rvip_petsnd(mtmp, 3);
     switch (msound) {
     case MS_ORACLE:
         return doconsult(mtmp);

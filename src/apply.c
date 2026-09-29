@@ -465,6 +465,7 @@ struct obj *obj;
             You_feel("rushing air tickle your %s.", body_part(NOSE));
         else
             You(whistle_str, obj->cursed ? "shrill" : "high");
+        ZSND(obj->cursed ? "whistle_tin_cursed" : "whistle_tin"); /* RVIP */
         wake_nearby();
         if (obj->cursed)
             vault_summon_gd();
@@ -480,6 +481,7 @@ struct obj *obj;
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
     } else if (obj->cursed && !rn2(2)) {
+        ZSND("whistle_magic_cursed"); /* RVIP */
         You("produce a %shigh-%s.", Underwater ? "very " : "",
             Deaf ? "frequency vibration" : "pitched humming noise");
         wake_nearby();
@@ -487,6 +489,7 @@ struct obj *obj;
         int pet_cnt = 0, omx, omy;
 
         /* it's magic!  it works underwater too (at a higher pitch) */
+        ZSND("whistle_magic"); /* RVIP */
         You(Deaf ? alt_whistle_str : whistle_str,
             Hallucination ? "normal"
             : (Underwater && !Deaf) ? "strange, high-pitched"
@@ -1019,6 +1022,7 @@ struct obj **optr;
                 (obj->otyp == BELL_OF_OPENING && invocation_pos(u.ux, u.uy)
                  && !On_stairs(u.ux, u.uy));
 
+    ZSND("bell"); /* RVIP */
     You("ring %s.", the(xname(obj)));
 
     if (Underwater || (u.uswallow && ordinary)) {
@@ -1361,6 +1365,7 @@ struct obj *obj;
             pline("%slamp is now off.", Shk_Your(buf, obj));
         else
             You("snuff out %s.", yname(obj));
+        ZSND("lamp_switch"); /* RVIP */
         end_burn(obj, TRUE);
         return;
     }
@@ -1387,6 +1392,7 @@ struct obj *obj;
             || obj->otyp == BRASS_LANTERN) {
             check_unpaid(obj);
             pline("%slamp is now on.", Shk_Your(buf, obj));
+            ZSND("lamp_switch"); /* RVIP */
         } else { /* candle(s) */
             pline("%s flame%s %s%s", s_suffix(Yname2(obj)), plur(obj->quan),
                   otense(obj, "burn"), Blind ? "." : " brightly!");

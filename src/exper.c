@@ -279,6 +279,7 @@ boolean incr; /* true iff via incremental experience growth */
 {             /*        (false for potion of gain level)    */
     int hpinc, eninc;
 
+    ZSND("fanfare"); /* RVIP: level up */
     if (!incr)
         You_feel("more experienced.");
 

@@ -527,6 +527,7 @@ struct obj *scroll;
                 /* for scroll, discover it regardless of destination */
                 if (scroll)
                     learnscroll(scroll);
+                ZSND("teleport"); /* RVIP */
                 teleds(cc.x, cc.y, FALSE);
                 return TRUE;
             }
@@ -541,6 +542,7 @@ struct obj *scroll;
     }
 
     telescroll = scroll;
+    ZSND("teleport"); /* RVIP */
     (void) safe_teleds(FALSE);
     /* teleds() will leave telescroll intact iff random destination
        is far enough away for scroll discovery to be warranted */

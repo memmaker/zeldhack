@@ -658,6 +658,7 @@ register struct obj *obj;
         if (!IS_ALTAR(levl[u.ux][u.uy].typ) && flags.verbose)
             You("drop %s.", doname(obj));
     }
+    ZSND("drop2"); /* RVIP */
     dropx(obj);
     return 1;
 }
@@ -1500,6 +1501,7 @@ boolean at_stairs, falling, portal;
         seetrap(ttrap);
         u_on_newpos(ttrap->tx, ttrap->ty);
     } else if (at_stairs && !In_endgame(&u.uz)) {
+        ZSND("stairs"); /* RVIP: stairs or ladder */
         if (up) {
             if (at_ladder)
                 u_on_newpos(xdnladder, ydnladder);

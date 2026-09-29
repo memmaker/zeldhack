@@ -464,6 +464,7 @@ boolean message;
         nomovemsg = 0;
     } else if (message)
         You("finish eating %s.", food_xname(piece, TRUE));
+    ZSND("munch"); /* RVIP: meal done */
 
     if (piece->otyp == CORPSE || piece->globby)
         cpostfx(piece->corpsenm);
@@ -1448,6 +1449,7 @@ opentin(VOID_ARGS)
     if (context.tin.usedtime < context.tin.reqtime)
         return 1; /* still busy */
 
+    ZSND("tin"); /* RVIP */
     consume_tin("You succeed in opening the tin.");
     return 0;
 }
@@ -1547,6 +1549,7 @@ STATIC_OVL int
 rottenfood(obj)
 struct obj *obj;
 {
+    ZSND("blecch"); /* RVIP */
     pline("Blecch!  Rotten %s!", foodword(obj));
     if (!rn2(4)) {
         if (Hallucination)
@@ -3032,6 +3035,8 @@ boolean incr;
             /* defer context.botl status update until after hunger message */
         }
 
+        if (newhs > u.uhs && (newhs == HUNGRY || newhs == WEAK))
+            ZSND(newhs == HUNGRY ? "hungry" : "weak"); /* RVIP */
         switch (newhs) {
         case HUNGRY:
             if (Hallucination) {
@@ -3198,6 +3203,7 @@ vomit() /* A good idea from David Neves */
            dealing with some esoteric body_part() */
         Your("jaw gapes convulsively.");
     } else {
+        ZSND("vomit"); /* RVIP */
         if (Sick && (u.usick_type & SICK_VOMITABLE) != 0)
             make_sick(0L, (char *) 0, TRUE, SICK_VOMITABLE);
         /* if not enough in stomach to actually vomit then dry heave;

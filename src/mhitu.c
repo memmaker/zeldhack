@@ -35,6 +35,8 @@ struct attack *mattk;
     const char *pfmt = 0;
     char *Monst_name = Monnam(mtmp);
 
+    ZSND(mattk->aatyp == AT_BITE ? "bites" : "hit1"); /* RVIP: monster hits */
+
     /* Note: if opposite gender, "seductively" */
     /* If same gender, "engagingly" for nymph, normal msg for others */
     if ((compat = could_seduce(mtmp, &youmonst, mattk)) != 0
@@ -86,6 +88,7 @@ struct attack *mattk;
     if (!canspotmon(mtmp))
         map_invisible(mtmp->mx, mtmp->my);
 
+    ZSND("swing2"); /* RVIP: monster misses */
     if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan)
         pline("%s pretends to be friendly.", Monnam(mtmp));
     else

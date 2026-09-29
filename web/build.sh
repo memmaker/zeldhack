@@ -41,7 +41,25 @@ from PIL import Image
 for n in (16, 32, 64):
     Image.open('zeldhack/tiles/%s_%d.bmp' % ('zeldhack' if n == 32 else 'ZeldHack', n)).convert('RGB').save('$OUT/tiles%s.png' % ('' if n == 32 else n))"
 cp web/index.html web/zeldhack.js "$OUT/"
+python3 web/make-help.py > "$OUT/help.html"
 mkdir "$OUT/music" && cp zeldhack/music/ambience.mp3 "$OUT/music/"
+# sound effects: the ZeldHack wavs that game actions name (ZSND in src/*.c),
+# as sound/norm_<name>.wav with spaces made underscores; played lazily
+mkdir "$OUT/sound"
+python3 - "$OUT/sound" <<'PY'
+import glob, os, re, shutil, sys
+names = set()
+for f in glob.glob('src/*.c'):
+    t = open(f, errors='replace').read()
+    t = re.sub(r'(?s)rvip_petsnd\(mtmp, kind\).*?\n}', lambda m: m.group(0).replace('\n', ' ZSND '), t)
+    for line in t.split('\n'):
+        if 'ZSND' in line or 'RVIP' in line or re.search(r'\bs = "', line):
+            names |= set(re.findall(r'"([a-z0-9_]+)"', line))
+for n in sorted(names):
+    w = 'zeldhack/sounds/norm_%s.wav' % n.replace('_', ' ')
+    if os.path.isfile(w):
+        shutil.copy(w, os.path.join(sys.argv[1], 'norm_%s.wav' % n))
+PY
 # text fonts: the index page's fonts/ (served at ../fonts/ next to the games)
 ROGUELIKES=${ROGUELIKES:-$HOME/Games/roguelikes-index}
 [ -d "$ROGUELIKES" ] || ROGUELIKES=/home/user/roguelikes

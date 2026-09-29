@@ -2753,6 +2753,7 @@ register struct obj *atmp;
         useup(otmp);
     } else {
         return 0; /* could not destroy anything */
+    ZSND("crumble"); /* RVIP */
     }
 
 #undef DESTROY_ARM

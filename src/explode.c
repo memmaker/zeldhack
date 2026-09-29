@@ -47,6 +47,7 @@ int expltype;
     char hallu_buf[BUFSZ], killr_buf[BUFSZ];
     short exploding_wand_typ = 0;
 
+    ZSND("explosion"); /* RVIP */
     if (olet == WAND_CLASS) { /* retributive strike */
         /* 'type' is passed as (wand's object type * -1); save
            object type and convert 'type' itself to zap-type */

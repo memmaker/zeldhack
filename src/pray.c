@@ -1279,6 +1279,7 @@ STATIC_OVL void
 gods_angry(g_align)
 aligntyp g_align;
 {
+    ZSND("black"); /* RVIP */
     godvoice(g_align, "Thou hast angered me.");
 }
 

@@ -225,6 +225,8 @@ drinkfountain()
     register boolean mgkftn = (levl[u.ux][u.uy].blessedftn == 1);
     register int fate = rnd(30);
 
+    ZSND("dunk"); /* RVIP: quaff from a fountain */
+
     if (Levitation) {
         floating_above("fountain");
         return;

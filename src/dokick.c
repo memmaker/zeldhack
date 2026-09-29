@@ -1254,6 +1254,7 @@ dokick()
  dumb:
         exercise(A_DEX, FALSE);
         if (martial() || ACURR(A_DEX) >= 16 || rn2(3)) {
+            ZSND("air"); /* RVIP */
             You("kick at empty space.");
             if (Blind)
                 feel_location(x, y);
@@ -1283,10 +1284,12 @@ dokick()
             maploc->doormask = D_NODOOR;
             b_trapped("door", FOOT);
         } else if (ACURR(A_STR) > 18 && !rn2(5) && !shopdoor) {
+            ZSND("crack"); /* RVIP */
             pline("As you kick the door, it shatters to pieces!");
             exercise(A_STR, TRUE);
             maploc->doormask = D_NODOOR;
         } else {
+            ZSND("crack"); /* RVIP */
             pline("As you kick the door, it crashes open!");
             exercise(A_STR, TRUE);
             maploc->doormask = D_BROKEN;
@@ -1312,6 +1315,7 @@ dokick()
         if (Blind)
             feel_location(x, y); /* we know we hit it */
         exercise(A_STR, TRUE);
+        ZSND("pied"); /* RVIP */
         pline("WHAMMM!!!");
         if (in_town(x, y))
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {

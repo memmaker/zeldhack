@@ -316,6 +316,7 @@ moverock()
             /* Move the boulder *after* the message. */
             if (glyph_is_invisible(levl[rx][ry].glyph))
                 unmap_object(rx, ry);
+            ZSND("boulder"); /* RVIP */
             movobj(otmp, rx, ry); /* does newsym(rx,ry) */
             if (Blind) {
                 feel_location(rx, ry);
@@ -806,6 +807,7 @@ int mode;
                                 You_cant("lead %s through that closed door.",
                                          y_monnam(u.usteed));
                             } else {
+                                ZSND("ouch"); /* RVIP */
                                 pline("Ouch!  You bump into a door.");
                                 exercise(A_DEX, FALSE);
                             }

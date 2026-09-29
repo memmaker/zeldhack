@@ -679,6 +679,7 @@ boolean new_game; /* false => restoring an old game */
                 : currentgend != flags.initgend))
         Sprintf(eos(buf), " %s", genders[currentgend].adj);
 
+    ZSND("entrance"); /* RVIP */
     pline(new_game ? "%s %s, welcome to NetHack!  You are a%s %s %s."
                    : "%s %s, the%s %s %s, welcome back to NetHack!",
           Hello((struct monst *) 0), plname, buf, urace.adj,
