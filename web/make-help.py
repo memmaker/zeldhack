@@ -141,7 +141,7 @@ ABOUT = '''<p><strong>ZeldHack</strong> is NetHack 3.6.7 dressed up as an 8-bit 
 <h3>Credits</h3>
 <ul>
 <li><strong>NetHack 3.6.7</strong> by the NetHack DevTeam (<a href="https://www.nethack.org/">nethack.org</a>), based on Hack by Jay Fenlason and Andries Brouwer; licensed under the NetHack General Public License.</li>
-<li><strong>ZeldHack tiles, sounds and ambience music</strong>: the ZeldHack asset pack by LSpixel (<a href="https://lspixel.itch.io/zeldhack">lspixel.itch.io/zeldhack</a>); its sounds come from classic NES/Famicom games.</li>
+<li><strong>ZeldHack tiles, sounds and ambience music</strong>: the ZeldHack asset pack by LSpixel (<a href="https://lspixel.itch.io/zeldhack-for-nethack-ready-to-play">lspixel.itch.io/zeldhack-for-nethack-ready-to-play</a>); its sounds come from classic NES/Famicom games.</li>
 <li><strong>Web version</strong>: our changes (auto-explore, stair walking, command menu, inventory item menus, window port, sound hooks, browser build) are local to this port and under the same licence.</li>
 </ul>
 <h3>About this version</h3>
