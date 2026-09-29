@@ -71,7 +71,7 @@ static int pushed_key;
 static char stat_val[MAXBLSTATS][MAXCO];
 static char stat_fmt[MAXBLSTATS][32];
 static boolean stat_on[MAXBLSTATS];
-static char statlines[2][MAXCO * 2];
+static char statlines[2][MAXCO * 4];
 
 static int cells[ROWNO * COLNO], chars[ROWNO * COLNO];
 static char *tbuf;
@@ -111,6 +111,87 @@ cidx(int attr, int clr)
     if (clr < 0 || clr >= CLR_MAX || clr == NO_COLOR)
         return attr == ATR_BOLD ? CLR_WHITE : CLR_GRAY;
     return clr;
+}
+
+/* CSS for the CLR_* colours (the same palette as the map) */
+static const char *const css[CLR_MAX] = {
+    "#555", "#c82828", "#28aa28", "#aa6e28", "#3c3cdc", "#aa28aa", "#28aaaa",
+    "#c8c8c8", "#646464", "#ff8c00", "#5aff5a", "#ffff50", "#6e6eff",
+    "#ff5aff", "#5affff", "#fff"
+};
+
+/* Visible window (RvipWM.visible): "M<sym><name>\t<css>\t<tile>" for each
+   monster the hero sees or senses, "I..." for each object seen on the map;
+   names from the monster / object, never from the screen */
+static void
+visible_list()
+{
+    int x, y;
+
+    for (y = 0; y < ROWNO; y++)
+        for (x = 1; x < COLNO; x++) {
+            int glyph = glyph_at(x, y), c = (mapc[y][x] >> 8) & 15;
+            char sym = (char) (mapc[y][x] & 0xff);
+            struct monst *mtmp;
+            struct obj *otmp;
+
+            if (u.uswallow)
+                return;
+            if (glyph_is_monster(glyph) && !(x == u.ux && y == u.uy)
+                && (mtmp = m_at(x, y)) != 0 && canspotmon(mtmp)) {
+                const char *nm = Hallucination
+                                     ? mons[glyph_to_mon(glyph)].mname
+                                     : l_monnam(mtmp);
+
+                tadd("M%c%s%s\t%s\t%d\n", sym, nm,
+                     Hallucination ? ""
+                     : mtmp->mtame ? " (tame)"
+                     : mtmp->mpeaceful ? " (peaceful)" : "",
+                     css[c], glyph2tile[glyph]);
+            } else if (glyph_is_object(glyph) && cansee(x, y)) {
+                int otyp = glyph_to_obj(glyph);
+                const char *nm;
+
+                otmp = vobj_at(x, y);
+                if (otmp && otmp->otyp == otyp && !Hallucination) {
+                    struct obj tmp;
+
+                    tmp = *otmp; /* xname may mark what it names: a copy */
+                    nm = xname(&tmp);
+                } else
+                    nm = simple_typename(otyp);
+                tadd("I%c%s\t%s\t%d\n", sym, nm, css[c], glyph2tile[glyph]);
+            }
+        }
+}
+
+/* Equipment window: worn and wielded items, rows as the inventory's */
+static void
+equip_list()
+{
+    static const long slots[] = { W_WEP, W_SWAPWEP, W_QUIVER, W_ARMC, W_ARM,
+                                  W_ARMU, W_ARMH, W_ARMS, W_ARMG, W_ARMF,
+                                  W_AMUL, W_RINGL, W_RINGR, W_TOOL, 0L };
+    struct obj *o;
+    int i;
+
+    for (i = 0; slots[i]; i++)
+        for (o = invent; o; o = o->nobj)
+            if (o->owornmask & slots[i]) {
+                const char *nm = doname(o);
+                int clr = NO_COLOR, at = ATR_NONE, ch, co, glyph;
+                unsigned sp;
+
+                if (iflags.use_menu_color)
+                    (void) get_menu_coloring(nm, &clr, &at);
+                glyph = obj_to_glyph(o, rn2_on_display_rng);
+                (void) mapglyph(glyph, &ch, &co, &sp, 0, 0, 0);
+                if (clr == NO_COLOR)
+                    clr = co;
+                tadd("%d\t%c\t0\t%d\t%d\t%s\n", glyph2tile[glyph], o->invlet,
+                     cidx(at, clr), ch & 0xff, nm);
+                break;
+            }
 }
 
 static void
@@ -162,6 +243,15 @@ redraw(void)
                      w->lines[i].s ? w->lines[i].s : "");
     }
     js_text(3, tbuf);
+
+    if (program_state.in_moveloop && !program_state.gameover) {
+        tlen = 0, tadd("%s", "");
+        visible_list();
+        js_text(7, tbuf);
+        tlen = 0, tadd("%s", "");
+        equip_list();
+        js_text(8, tbuf);
+    }
 }
 
 /* returns a key, or 0 for a map click (mouse_* set).  From JS: ASCII,
@@ -170,6 +260,8 @@ redraw(void)
 static int
 getkey(boolean want_mouse)
 {
+    static boolean dirty;
+    static double last;
     int k;
 
     redraw();
@@ -181,10 +273,24 @@ getkey(boolean want_mouse)
     for (;;) {
         boolean np = iflags.num_pad || popup >= 0; /* lists: arrows = 8246 */
 
-        if ((k = js_key(0, popup < 0 && !promptbuf[0])) < 0) {
+        boolean atcmd = iflags.in_parse && popup < 0;
+
+        if ((k = js_key(0, atcmd)) < 0) {
+            /* autosave (RVIP 5.10): idle 1 s at the command prompt after
+               a key -> INSURANCE checkpoint of the level and the game state
+               (lock files); SELF_RECOVER in getlock() turns it into a save
+               after a reload.  JS copies it to IndexedDB. */
+            if (dirty && atcmd && !multi && !occupation
+                && program_state.something_worth_saving
+                && !program_state.gameover && !program_state.done_hup
+                && emscripten_get_now() - last > 1000) {
+                dirty = FALSE;
+                save_currentstate();
+            }
             emscripten_sleep(15);
             continue;
         }
+        dirty = TRUE, last = emscripten_get_now();
         if (k & 0x20000) {
             int i = k & 0xffff;
 
@@ -1082,59 +1188,149 @@ static const int statorder[] = {
     BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
     BL_XP, BL_HD, BL_EXP, BL_TIME, BL_HUNGER, BL_CAP, BL_CONDITION
 };
+static int stat_clr[MAXBLSTATS];       /* hilite_status: colour | HL_* << 8 */
+static unsigned long *stat_masks;      /* condition colours (cond_hilites) */
+static long stat_cond;
+static int hpbar_pct, hpbar_clr = NO_COLOR;
+
+/* one status segment "colour:attr:text" (colour -1 = default); segments of
+   a line are joined by tabs */
+static void
+seg(out, clr, attr, text)
+char *out;
+int clr, attr;
+const char *text;
+{
+    char dec[MAXCO * 2];
+
+    if (!*text)
+        return;
+    (void) decode_mixed(dec, text); /* \G<glyph> escapes (the $ of the gold) */
+    if (!iflags.hilite_delta)
+        clr = NO_COLOR, attr = 0;
+    if (strlen(out) + strlen(dec) + 16 >= MAXCO * 4)
+        return;
+    Sprintf(eos(out), "%s%d:%d:%s", *out ? "\t" : "",
+            (clr >= 0 && clr < CLR_MAX && clr != NO_COLOR) ? clr : -1,
+            attr & ~HL_NONE, dec);
+}
+
+static int
+cond_attr(mask)
+long mask;
+{
+    int a = 0;
+
+    if (!stat_masks)
+        return 0;
+    if (mask & stat_masks[HL_ATTCLR_DIM]) a |= HL_DIM;
+    if (mask & stat_masks[HL_ATTCLR_BLINK]) a |= HL_BLINK;
+    if (mask & stat_masks[HL_ATTCLR_ULINE]) a |= HL_ULINE;
+    if (mask & stat_masks[HL_ATTCLR_INVERSE]) a |= HL_INVERSE;
+    if (mask & stat_masks[HL_ATTCLR_BOLD]) a |= HL_BOLD;
+    return a;
+}
+
+static void
+build_status()
+{
+    int i, j, line = 0;
+    char buf[MAXCO * 2], *out;
+
+    statlines[0][0] = statlines[1][0] = 0;
+    for (i = 0; i < SIZE(statorder); i++) {
+        int f = statorder[i];
+
+        if (f < 0) {
+            line = 1;
+            continue;
+        }
+        if (!stat_on[f] || (!stat_val[f][0] && f != BL_CONDITION))
+            continue;
+        out = statlines[line];
+        if (f == BL_CONDITION) {
+            extern const struct condmap valid_conditions[];
+
+            for (j = 0; j < BL_MASK_BITS; j++) {
+                long m = valid_conditions[j].bitmask;
+                int c = NO_COLOR, k;
+
+                if (!(stat_cond & m))
+                    continue;
+                for (k = 0; stat_masks && k < CLR_MAX; k++)
+                    if (m & stat_masks[k]) {
+                        c = k;
+                        break;
+                    }
+                seg(out, -1, 0, " ");
+                seg(out, c, cond_attr(m), valid_conditions[j].id);
+            }
+            continue;
+        }
+        Sprintf(buf, stat_fmt[f][0] ? stat_fmt[f] : "%s", stat_val[f]);
+        if (f == BL_TITLE && iflags.wc2_hitpointbar) {
+            /* tty's hit point bar: the title as 30 columns in brackets, the
+               part for the HP left shown inverse in the HP colour */
+            char bar[40];
+            int n = (30 * hpbar_pct) / 100;
+
+            Sprintf(bar, "%-30.30s", stat_val[f]);
+            if (n < 1 && hpbar_pct > 0)
+                n = 1;
+            if (n >= 30 && hpbar_pct < 100)
+                n = 29;
+            seg(out, -1, 0, "[");
+            {
+                char a[40];
+
+                Strcpy(a, bar);
+                a[n] = 0;
+                if (*a) {
+                    int c = iflags.hilite_delta ? hpbar_clr : NO_COLOR;
+
+                    Sprintf(eos(out), "%s%d:%d:%s", *out ? "\t" : "",
+                            (c >= 0 && c < CLR_MAX && c != NO_COLOR) ? c : -1,
+                            HL_INVERSE, a);
+                }
+            }
+            seg(out, -1, 0, bar + n);
+            seg(out, -1, 0, "]");
+            continue;
+        }
+        seg(out, stat_clr[f] & 0xff, (stat_clr[f] >> 8) & 0xff, buf);
+    }
+}
 
 static void
 web_status_update(fldidx, ptr, chg, percent, color, colormasks)
-int fldidx, chg UNUSED, percent UNUSED, color UNUSED;
+int fldidx, chg UNUSED, percent, color;
 genericptr_t ptr;
-unsigned long *colormasks UNUSED;
+unsigned long *colormasks;
 {
-    int i, line = 0;
-    char *out;
-
     if (fldidx == BL_RESET || fldidx == BL_FLUSH) {
-        statlines[0][0] = statlines[1][0] = 0;
-        for (i = 0; i < SIZE(statorder); i++) {
-            int f = statorder[i];
-
-            if (f < 0) {
-                line = 1;
-                continue;
-            }
-            if (!stat_on[f] || !stat_val[f][0])
-                continue;
-            out = statlines[line];
-            if (out[0])
-                Strcat(out, " ");
-            Sprintf(eos(out), stat_fmt[f][0] ? stat_fmt[f] : "%s",
-                    stat_val[f]);
-        }
-        for (i = 0; i < 2; i++) { /* \G<glyph> escapes (the $ of the gold) */
-            char dec[sizeof statlines[0]];
-
-            (void) decode_mixed(dec, statlines[i]);
-            Strcpy(statlines[i], dec);
-        }
+        build_status();
         return;
     }
     if (fldidx < 0 || fldidx >= MAXBLSTATS)
         return;
+    stat_clr[fldidx] = color;
     if (fldidx == BL_CONDITION) {
-        unsigned long m = ptr ? *(unsigned long *) ptr : 0L;
-
+        stat_cond = ptr ? *(unsigned long *) ptr : 0L;
+        stat_masks = colormasks;
         stat_val[fldidx][0] = 0;
-        for (i = 0; i < 13; i++) { /* valid_conditions[] */
-            extern const struct condmap valid_conditions[];
+        return;
+    }
+    if (fldidx == BL_HP)
+        hpbar_pct = percent, hpbar_clr = color & 0xff;
+    if (ptr) {
+        char *e;
 
-            if (m & valid_conditions[i].bitmask)
-                Sprintf(eos(stat_val[fldidx]), "%s%s",
-                        stat_val[fldidx][0] ? " " : "",
-                        valid_conditions[i].id);
-        }
-        Strcpy(stat_fmt[fldidx], "%s");
-    } else if (ptr) {
         strncpy(stat_val[fldidx], (const char *) ptr, MAXCO - 1);
         stat_val[fldidx][MAXCO - 1] = 0;
+        if (fldidx == BL_LEVELDESC || fldidx == BL_HUNGER) /* rule 5: trim */
+            for (e = eos(stat_val[fldidx]);
+                 e > stat_val[fldidx] && e[-1] == ' ';)
+                *--e = 0;
     }
 }
 
@@ -1142,7 +1338,7 @@ struct window_procs web_procs = {
     "web",
     (WC_COLOR | WC_HILITE_PET | WC_INVERSE | WC_TILED_MAP | WC_PERM_INVENT
      | WC_MOUSE_SUPPORT),
-    (WC2_FLUSH_STATUS),
+    (WC2_FLUSH_STATUS | WC2_HILITE_STATUS | WC2_HITPOINTBAR),
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
     web_init_nhwindows, web_player_selection, web_askname, web_get_nh_event,
     web_exit_nhwindows, web_suspend_nhwindows, web_resume_nhwindows,

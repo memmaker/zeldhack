@@ -159,6 +159,21 @@ getlock()
             error("Cannot open %s", fq_lock);
         }
 
+#if defined(SELF_RECOVER) && defined(__EMSCRIPTEN__)
+        /* RVIP web: a closed tab or reload left the autosave checkpoint
+           (INSURANCE level files): turn it into a save file, restored
+           right after this; never ask "Destroy old game?", never treat a
+           checkpoint as too old */
+        (void) close(fd);
+        if (!recover_savefile() && !eraseoldlocks()) { /* else a new game */
+            unlock_file(HLOCK);
+            error("Couldn't recover old game.");
+        }
+        /* recover_savefile() and fqname() changed lock[] and fq_lock */
+        set_levelfile_name(lock, 0);
+        fq_lock = fqname(lock, LEVELPREFIX, 0);
+        goto gotlock;
+#endif
         /* veryold() closes fd if true */
         if (veryold(fd) && eraseoldlocks())
             goto gotlock;

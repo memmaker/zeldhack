@@ -94,7 +94,7 @@
     "@-tags" in NetHack 3.6. Reopen suppression with a hostile in view untested.
     Once saw an unexplained "e - a pick-axe." pickup message after closing a
     pop-up (not reproduced in 5 reruns). Visual check in the pane: todo on Mac.
-- **Stage 4 (tiles) done in the cloud.** **Next: stage 5** (web page and windows).
+- Stage 4 (tiles) done in the cloud.
   - One set: ZeldHack (LS Pixel) 16/32/64 (`tiles16.png`, `tiles.png`, `tiles64.png`,
     40 per row, 1480 slots). Tiles button cycles ZeldHack 16 -> 32 -> 64 -> None;
     stored by name as `tiles` in `/nethack/web-layout.json` (IDBFS), read in the
@@ -119,3 +119,46 @@
   - Open: map cell is 12 px in the default layout (80 cols don't fit; stage 5).
     Reload mid-game asks "Destroy old game?" and Enter = n ends it (lock file;
     stage 5/5.10 autosave). Visual check in the pane: todo on Mac.
+- **Stage 5 (web page and windows) done in the cloud.** **Next: stage 6** (docs and sound).
+  - Windows (rvip-wm): Map, Messages, Status, Inventory, Visible on by default;
+    Equipment (worn/wielded, C `equip_list()`, id 8) via Windows ▾; no Recall.
+    One window = only the map canvas showing the game's 80x24 screen (prompt row,
+    map, 2 status rows drawn as text cells), scaled to fit in whole device pixels,
+    no scroll, no A−/A+. Default cell (`autoCell()` in zeldhack.js): whole map if
+    it fits, else the sheet size (32) while 12 rows fit; camera = `RvipWM.center`.
+  - winweb.c sends: 7 = Visible (`visible_list()`: `m_at`+`canspotmon`, `l_monnam`,
+    tame/peaceful; objects in `cansee` squares, `xname` of a copy; CSS colour
+    table `css[]` = page PAL), 8 = Equipment, 1 = status as tab-separated segments
+    `colour:HL_bits:text` (hilite_status + hitpointbar, WC2_HILITE_STATUS|HITPOINTBAR).
+  - Options: build.sh writes `nethackrc` into the seed from zeldhack/nethackrc
+    (drops SOUND*, SAVEDIR, map_mode/tile_*/font_*/windowcolors/vary_msgcount;
+    prepends OPTIONS=color); page sets `NETHACKOPTIONS=@/zeldhack/nethackrc`.
+    So number_pad:2 is the default (arrows/numpad move), pets Sirius/Blacky/Jump.
+  - Saves: IDBFS folder is now **/zeldhack** (HACKDIR/SYSCF_FILE too; /nethack
+    collided with nethack50 on the shared origin). Autosave: winweb getkey,
+    idle 1 s at the command prompt (`iflags.in_parse`, no popup) after a key ->
+    `save_currentstate()` (INSURANCE); JS syncs every 2 s while idle, 15 s,
+    pagehide/hidden. `-DSELF_RECOVER`: unixunix.c getlock (web) turns the lock
+    files into a save (`recover_savefile`) and restores silently -> no "Destroy
+    old game?" (reset `lock`/`fq_lock` after it!). No COMPRESS under emscripten
+    (config.h; the fork failed). JS `key()` returns -2 when the page stopped the
+    game (New game/import), so no autosave then.
+  - File ▾: Export = the S save, else the running checkpoint as one JSON bundle
+    (level files); Import takes either; New game clears save/ + level files.
+    Game end -> overlay "Play again" (reload); beforeunload warns while running.
+  - Audio ▾: Sound effects (no hooks yet, stage 6), Music = `music/ambience.mp3`
+    loop via <audio> (off by default, 43 MB, stored as `music` in the layout).
+    fonts.json from $ROGUELIKES/fonts (cloud: /home/user/roguelikes).
+  - Tested headless (Playwright): birth, windows filled, status colours,
+    visible list, equipment, one-window mode, options menu (O) in both modes,
+    A+ on one window only + kept over reload, map zoom kept, reload mid-game
+    continues (T kept), autosave leaves map pixels unchanged and updates mtimes,
+    S -> overlay -> Play again restores, #quit -> beacon ev=quit -> overlay ->
+    new game, export bundle -> import -> restored, New game; rvip smoke, resize,
+    idbtest pass (only /zeldhack + rvip-outbox databases, no localStorage).
+  - `web/deploy.sh` written (guard, rsync to roguelikes/zeldhack/): ready/todo on
+    Mac (deploy + live test + pane look). help.html missing (Help 404s): stage 6.
+  - Open: one-window text uses square tile cells (wide letter spacing); shop not
+    visited in tests; non-integer tile scale when the map window is < 12*32 px
+    high; Visible lists only squares in sight (dark rooms: remembered items not listed).
+
