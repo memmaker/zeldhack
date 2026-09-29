@@ -886,6 +886,12 @@ E int NDECL(wiz_debug_cmd_traveldisplay);
 #endif
 E boolean NDECL(u_rooted);
 E void NDECL(domove);
+E long rvip_msgs;
+E boolean rvip_keyhit;
+E boolean FDECL(rvip_start, (CHAR_P));
+E boolean NDECL(rvip_continue);
+E boolean NDECL(rvip_walking);
+E int NDECL(doexplore);
 E boolean NDECL(overexertion);
 E void NDECL(invocation_message);
 E void NDECL(switch_terrain);

@@ -117,8 +117,9 @@ z	Go northwest 1 space
 Z	Go northwest until you are on top of something
 ^Z	Go northwest until you are near something
 &. #0,1..4 vs -1
-<	Go up a staircase
->	Go down a staircase
+<	Go up a staircase (off stairs: walk to the nearest known one)
+>	Go down a staircase (off stairs: walk to the nearest known one)
+~	Auto-explore the level until something happens
 /	Show what type of thing a symbol corresponds to
 ?	Give a help message
 &? shell

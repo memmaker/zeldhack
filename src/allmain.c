@@ -432,7 +432,8 @@ boolean resuming;
 #ifdef MAIL
             ckmailstatus();
 #endif
-            rhack((char *) 0);
+            if (!rvip_continue())
+                rhack((char *) 0);
         }
         if (u.utotype)       /* change dungeon level */
             deferred_goto(); /* after rhack() */

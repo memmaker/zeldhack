@@ -90,8 +90,9 @@ x     xchange   swap wielded and secondary weapons
 X     twoweapon toggle two-weapon combat if role allows that
 z     zap       zap a wand  (use y instead of z if number_pad is -1)
 Z     Zap       cast a spell  (use Y instead of Z if number_pad is -1)
-<     up        go up the stairs
->     down      go down the stairs
+<     up        go up the stairs (off stairs: walk to the nearest known)
+>     down      go down the stairs (off stairs: walk to the nearest known)
+~     explore   auto-explore the level until something happens
 ^     trap_id   identify a previously found trap
 ),[,=,",(       show current items of specified symbol in use
 *               show combination of ),[,=,",( all at once

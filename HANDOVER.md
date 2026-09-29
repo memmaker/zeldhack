@@ -3,7 +3,7 @@
 ## RVIP progress
 - Stage 0 (prep, Mac): repo created from NetHack 3.6.7 + ZeldHack assets
   (`zeldhack/`), brief in `CLOUD.md`.
-- **Stage 1 (get + build) done in the cloud.** **Next: stage 2** (explore + stairs).
+- Stage 1 (get + build) done in the cloud.
   - Base: `NetHack/NetHack` tag `NetHack-3.6.7_Released` (commit 1). Case O.
   - Window port: `win/web/winweb.c` (new, C89 style, 3.6 API), registered in
     `src/windows.c` under `WEB_GRAPHICS`; `src/end.c` calls `be_run_end()` (beacon,
@@ -35,3 +35,31 @@
   - Not yet baked in: `zeldhack/nethackrc` options, sounds (`SOUND=MESG` must become
     action hooks, rule 8), music, explore/stairs/Enter menu, autosave (SELF_RECOVER).
     Untested: save + reload, `S` in the browser, IDBFS round trip.
+- **Stage 2 (explore + stairs + no --More--) done in the cloud.** **Next: stage 3**
+  (Enter menu + inventory).
+  - `~` = `autoexplore` (extcmd in src/cmd.c; `~` unused in 3.6.7 with number_pad
+    off or on). Code at the end of `src/hack.c` (`rvip_*`), hook in `moveloop`
+    (`if (!rvip_continue()) rhack(0)`), `<`/`>` in `src/do.c` doup/dodown: off the
+    right stairs they walk to the nearest known one (stairs, ladders, branch
+    stairs) and stop there; second press takes them.
+  - Stops: key (winweb `web_get_nh_event` peeks `js_key(1)`, sets `rvip_keyhit`,
+    paints each step with a 40 ms sleep), any new message (`rvip_msgs`, counted in
+    winweb `web_putstr` NHW_MESSAGE; "The door opens." is the one exception), a
+    hostile in view for explore ("In view: the jackal."), a step that did not move.
+    BFS skips known traps, water/lava, remembered boulders, doors that proved
+    locked (marked per level); explore paths around all non-tame monsters, stair
+    walks only around hostiles (may flee past). Blocked: "Known traps, boulders or
+    locked doors block the only way on."
+  - No --More--: winweb has no --More-- at all (3.6.7 has no auto_more option);
+    messages go to the log. Birth tested: no -more-; the legacy intro is a text
+    pop-up closed with Enter (not a --More--).
+  - Help: dat/hh, dat/help, dat/cmdhelp. Hint bar already showed `~ explore`.
+  - build.sh now redoes web/b32 (copy of the tree it compiles!) when any tracked
+    include/src/dat/win/share file is newer than nhdat.
+  - Tested (Playwright): explore ran ~90 steps opening a door, stopped on pet in the
+    way / monster in view; `<` from off-stairs walked back to the up stairs, second
+    `<` asked "Still climb?"; no -more- in the log. Not tested: key interrupt
+    mid-walk in the browser, locked door marking, `>` to a known down staircase
+    (walk code is shared with `<`).
+  - Open: pet swaps/pickups stop explore (every message stops); the dog "in the
+    way" stops it often. Visual check of step painting: todo on Mac.

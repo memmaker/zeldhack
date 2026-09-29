@@ -3174,3 +3174,212 @@ struct obj *otmp;
 }
 
 /*hack.c*/
+
+/* RVIP: auto-explore ('~') and '<' / '>' walks to known stairs.
+   One step per turn; moveloop calls rvip_continue() when idle.
+   Stops on a visible monster, a new message (rvip_msgs, counted by the
+   window port), a key (rvip_keyhit) or a step that did not move. */
+static char rvip_mode; /* 0, '~' explore, '<' or '>' */
+long rvip_msgs;
+boolean rvip_keyhit;
+static long rvip_seen;
+static char rvip_locked[COLNO][ROWNO];
+static d_level rvip_lz;
+static boolean rvip_blocked; /* the last BFS skipped a trap/locked door */
+
+STATIC_OVL boolean
+rvip_stair(x, y, up)
+int x, y;
+boolean up;
+{
+    if (!levl[x][y].seenv)
+        return FALSE;
+    if (up)
+        return (x == xupstair && y == yupstair)
+               || (xupladder && x == xupladder && y == yupladder)
+               || (sstairs.sx && x == sstairs.sx && y == sstairs.sy
+                   && sstairs.up);
+    return (xdnstair && x == xdnstair && y == ydnstair)
+           || (xdnladder && x == xdnladder && y == ydnladder)
+           || (sstairs.sx && x == sstairs.sx && y == sstairs.sy
+               && !sstairs.up);
+}
+
+STATIC_OVL boolean
+rvip_goal(x, y)
+int x, y;
+{
+    int dx, dy;
+
+    if (rvip_mode != '~')
+        return rvip_stair(x, y, rvip_mode == '<');
+    for (dx = -1; dx <= 1; dx++)
+        for (dy = -1; dy <= 1; dy++)
+            if (isok(x + dx, y + dy) && !levl[x + dx][y + dy].seenv)
+                return TRUE;
+    return FALSE;
+}
+
+/* BFS over known squares; one step toward the nearest goal.
+   Returns 1 stepped, 0 nothing to do, -1 already on the goal */
+STATIC_OVL int
+rvip_step()
+{
+    static xchar qx[COLNO * ROWNO], qy[COLNO * ROWNO];
+    static schar first[COLNO][ROWNO]; /* direction of the first step + 1 */
+    int h = 0, t = 0, d, x, y, nx, ny, ox = u.ux, oy = u.uy;
+    struct trap *tr;
+    struct monst *mtmp;
+
+    if (!on_level(&rvip_lz, &u.uz)) {
+        (void) memset(rvip_locked, 0, sizeof rvip_locked);
+        assign_level(&rvip_lz, &u.uz);
+    }
+    rvip_blocked = FALSE;
+    if (rvip_mode != '~' && rvip_goal(u.ux, u.uy))
+        return -1;
+    (void) memset(first, 0, sizeof first);
+    first[u.ux][u.uy] = -1;
+    qx[t] = u.ux, qy[t++] = u.uy;
+    while (h < t) {
+        x = qx[h], y = qy[h++];
+        for (d = 0; d < 8; d++) {
+            nx = x + xdir[d], ny = y + ydir[d];
+            if (!isok(nx, ny) || first[nx][ny] || !levl[nx][ny].seenv
+                || !test_move(x, y, xdir[d], ydir[d], TEST_TRAV))
+                continue;
+            if (is_pool_or_lava(nx, ny) || rvip_locked[nx][ny]
+                || (glyph_is_object(glyph_at(nx, ny))
+                    && glyph_to_obj(glyph_at(nx, ny)) == BOULDER)
+                || ((tr = t_at(nx, ny)) != 0 && tr->tseen)) {
+                rvip_blocked = TRUE;
+                continue;
+            }
+            /* explore refuses to path through monsters; stair walks
+               only avoid the square itself when it is a hostile */
+            if ((mtmp = m_at(nx, ny)) != 0 && canspotmon(mtmp)
+                && !mtmp->mtame && (rvip_mode == '~' || !mtmp->mpeaceful))
+                continue;
+            first[nx][ny] = (x == u.ux && y == u.uy) ? d + 1 : first[x][y];
+            if (rvip_goal(nx, ny)) {
+                d = first[nx][ny] - 1;
+                u.dx = xdir[d], u.dy = ydir[d], u.dz = 0;
+                nx = u.ux + u.dx, ny = u.uy + u.dy;
+                context.run = 0;
+                context.travel = context.travel1 = 0;
+                context.nopick = 0;
+                context.door_opened = 0;
+                domove();
+                if (context.door_opened)
+                    rvip_seen = rvip_msgs; /* "The door opens." goes on */
+                else if (u.ux == ox && u.uy == oy) {
+                    if (IS_DOOR(levl[nx][ny].typ)
+                        && (levl[nx][ny].doormask & D_LOCKED))
+                        rvip_locked[nx][ny] = 1;
+                    return 2; /* did not move */
+                }
+                return 1;
+            }
+            qx[t] = nx, qy[t++] = ny;
+        }
+    }
+    return 0;
+}
+
+STATIC_OVL struct monst *
+rvip_in_view()
+{
+    struct monst *mtmp;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+        if (!DEADMONSTER(mtmp) && canspotmon(mtmp) && !mtmp->mtame
+            && !mtmp->mpeaceful)
+            return mtmp;
+    return (struct monst *) 0;
+}
+
+STATIC_OVL void
+rvip_nothing()
+{
+    if (rvip_blocked)
+        pline("Known traps, boulders or locked doors block the only way on.");
+    else if (rvip_mode == '~')
+        pline("Nothing left to explore here.");
+    else
+        pline("You know no %s staircase on this level.",
+              rvip_mode == '<' ? "up" : "down");
+}
+
+/* start a walk; FALSE if there is nowhere to go (a message was given) */
+boolean
+rvip_start(mode)
+char mode;
+{
+    struct monst *mtmp;
+    int r;
+
+    rvip_mode = mode;
+    rvip_keyhit = FALSE;
+    if (mode == '~' && (mtmp = rvip_in_view()) != 0) {
+        pline("In view: %s.", mon_nam(mtmp));
+        rvip_mode = 0;
+        context.move = 0;
+        return TRUE; /* handled, no time */
+    }
+    rvip_seen = rvip_msgs;
+    r = rvip_step();
+    if (r == -1) {
+        rvip_mode = 0;
+        return FALSE; /* on the stairs after all: let the caller take them */
+    }
+    if (r == 0) {
+        rvip_nothing();
+        context.move = 0;
+    }
+    if (r != 1)
+        rvip_mode = 0;
+    return TRUE;
+}
+
+boolean
+rvip_walking()
+{
+    return rvip_mode != 0;
+}
+
+/* called from moveloop when idle; TRUE if it used the turn */
+boolean
+rvip_continue()
+{
+    struct monst *mtmp;
+
+    if (!rvip_mode)
+        return FALSE;
+    if (rvip_keyhit || rvip_msgs != rvip_seen || u.uinwater || multi
+        || u.uswallow) {
+        rvip_mode = 0;
+        return FALSE;
+    }
+    if (rvip_mode == '~' && (mtmp = rvip_in_view()) != 0) {
+        pline("In view: %s.", mon_nam(mtmp));
+        rvip_mode = 0;
+        return FALSE;
+    }
+    switch (rvip_step()) {
+    case 1: /* a message the step gave stops the next one */
+        return TRUE;
+    case 0:
+        rvip_nothing();
+        /*FALLTHRU*/
+    default: /* -1 arrived: pressing < or > again takes them */
+        rvip_mode = 0;
+        return FALSE;
+    }
+}
+
+int
+doexplore()
+{
+    (void) rvip_start('~');
+    return context.move && rvip_mode ? 1 : 0;
+}

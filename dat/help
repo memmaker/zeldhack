@@ -82,8 +82,12 @@ Commands:
                 autodescribe option will give information about the symbol
                 at each location you move the cursor onto.
         &       Tell what a command does.
-        <       Go up a staircase (if you are standing on it).
-        >       Go down a staircase (if you are standing on it).
+        <       Go up a staircase (if you are standing on it; otherwise
+                walk to the nearest known up staircase, press again).
+        >       Go down a staircase (if you are standing on it; otherwise
+                walk to the nearest known down staircase, press again).
+        ~       Auto-explore: walk the level until something happens
+                (a monster in view, a message, any key).
         .       Rest, do nothing for one turn.
         _       Travel via a shortest-path algorithm to a point on the map.
         a       Apply (use) a tool (pick-axe, key, lamp...).

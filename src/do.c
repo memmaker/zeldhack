@@ -945,6 +945,11 @@ dodown()
                                && !sstairs.up)),
             ladder_down = (u.ux == xdnladder && u.uy == ydnladder);
 
+    /* RVIP: off the down stairs, walk to the nearest known ones */
+    if (!stairs_down && !ladder_down && !Levitation && !u.ustuck
+        && !t_at(u.ux, u.uy) && !u.uswallow && rvip_start('>'))
+        return context.move ? 1 : 0;
+
     if (u_rooted())
         return 1;
 
@@ -1094,6 +1099,15 @@ dodown()
 int
 doup()
 {
+    /* RVIP: off the up stairs, walk to the nearest known ones */
+    if ((u.ux != xupstair || u.uy != yupstair)
+        && (!xupladder || u.ux != xupladder || u.uy != yupladder)
+        && (!sstairs.sx || u.ux != sstairs.sx || u.uy != sstairs.sy
+            || !sstairs.up)
+        && !Levitation && !u.ustuck && !u.uswallow
+        && !(u.utrap && u.utraptype == TT_PIT) && rvip_start('<'))
+        return context.move ? 1 : 0;
+
     if (u_rooted())
         return 1;
 

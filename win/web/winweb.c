@@ -367,7 +367,17 @@ web_get_nh_event()
 {
     static double last;
 
-    if (emscripten_get_now() - last > 50) { /* let the page paint */
+    /* RVIP: a key interrupts explore, stair walks, runs and travel */
+    if (js_key(1, 0) > 0) {
+        rvip_keyhit = TRUE;
+        if (multi > 0 && context.mv)
+            nomul(0);
+    }
+    if (rvip_walking() && !rvip_keyhit) { /* paint every step */
+        last = emscripten_get_now();
+        redraw();
+        emscripten_sleep(40);
+    } else if (emscripten_get_now() - last > 50) { /* let the page paint */
         last = emscripten_get_now();
         redraw();
         emscripten_sleep(0);
@@ -440,6 +450,7 @@ winid w;
         return;
     switch (wins[w].type) {
     case NHW_MESSAGE:
+        rvip_msgs++; /* explore / stair walks stop on a new message */
         js_text(5, "");
         break;
     case NHW_MAP:

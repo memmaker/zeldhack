@@ -121,7 +121,8 @@ extern int NDECL(dovspell);           /**/
 extern int NDECL(dotelecmd);          /**/
 extern int NDECL(dountrap);           /**/
 extern int NDECL(doversion);          /**/
-extern int NDECL(doextversion);       /**/
+extern int NDECL(doextversion);
+extern int NDECL(doexplore);       /**/
 extern int NDECL(doswapweapon);       /**/
 extern int NDECL(dowield);            /**/
 extern int NDECL(dowieldquiver);      /**/
@@ -3365,6 +3366,8 @@ struct ext_func_tab extcmdlist[] = {
             doapply },
     { C('x'), "attributes", "show your attributes",
             doattributes, IFBURIED },
+    { '~', "autoexplore", "explore the level until something happens",
+            doexplore },
     { '@', "autopickup", "toggle the pickup option on/off",
             dotogglepickup, IFBURIED },
     { 'C', "call", "call (name) something", docallcmd, IFBURIED },
