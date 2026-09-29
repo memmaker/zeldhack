@@ -1,21 +1,18 @@
 # ZeldHack — handover
 
-**For the local (Mac) agent:** stages 1-9 of RVIP were done in the cloud as far as possible.
-What remains is only what needs the Mac: read the "Todo on Mac" list below and
-`publish/MAC.md`, do the repo split, deploy, browser-pane check, merge `LESSONS.md` into
-`RVIP.md`. Build: `. emsdk_env.sh; sh web/build.sh`. Keep this file up to date; delete
-`CLOUD.md`, `LESSONS.md` and `publish/` from the public repo when done (per MAC.md).
+**Status (2026-09-29): published.** Repo split done (memmaker/zeldhack, upstream commit
+d4d2545 kept its hash), live at https://ruzzoli.de/roguelikes/zeldhack/ with card, tree entry,
+shrine and killer art in roguelikes-index. Build: `. emsdk_env.sh; sh web/build.sh`
+(macOS-portable since the Mac pass). Lessons are merged into RVIP.md; `CLOUD.md`,
+`LESSONS.md` and `publish/` are not in this repo.
 
 ## RVIP progress
-**Todo on Mac (consolidated, details in `publish/MAC.md`):** verify year 2023 + LSpixel
-asset licence (user's call); repo split to memmaker/zeldhack (filter LESSONS.md, CLOUD.md,
-publish/); card + tree + img + shrine page + shrine/zeldhack/ + killers/zeldhack/ into
-roguelikes-index, killers/make.py entry; og.py (game + shrine); build, browser-pane visual
-check (tiles, step painting, sounds), `web/deploy.sh` + index `deploy.sh`, check live incl.
-the three shrine links and one real run on graveyard.html; merge LESSONS.md into RVIP.md;
-Docs GAMES/GUIDES entry. Missing manual/walkthrough: the asset pack has no manual and there
-is no ZeldHack walkthrough (NetHack Guidebook 3.6 shipped instead, NetHackWiki linked);
-the pack's release zip / itch.io text was not downloaded (ask the user if wanted).
+**Mac pass done:** year 2023 and the LSpixel licence confirmed by the user; asset pack page
+https://lspixel.itch.io/zeldhack-for-nethack-ready-to-play (linked in Help and shrine); browser-pane
+check (tiles 16/32/64/None, explore painting, Enter menu, inventory, save + reload, live page) ok.
+**Open:** sound not listened to (pane cannot judge audio); a quit from the live page did not appear
+in data/runs.json (Claude's UA is filtered; check with a real death in your own browser); pack manual/walkthrough
+still missing (Guidebook 3.6 shipped, NetHackWiki linked); the zeldhack-cloud repo is not deleted yet.
 
 - Stage 0 (prep, Mac): repo created from NetHack 3.6.7 + ZeldHack assets
   (`zeldhack/`), brief in `CLOUD.md`.
