@@ -12,7 +12,7 @@ https://lspixel.itch.io/zeldhack-for-nethack-ready-to-play (linked in Help and s
 check (tiles 16/32/64/None, explore painting, Enter menu, inventory, save + reload, live page) ok.
 **Open:** sound not listened to (pane cannot judge audio); a quit from the live page did not appear
 in data/runs.json (Claude's UA is filtered; check with a real death in your own browser); pack manual/walkthrough
-still missing (Guidebook 3.6 shipped, NetHackWiki linked); the zeldhack-cloud repo is not deleted yet.
+still missing (Guidebook 3.6 shipped, NetHackWiki linked).
 
 - Stage 0 (prep, Mac): repo created from NetHack 3.6.7 + ZeldHack assets
   (`zeldhack/`), brief in `CLOUD.md`.
