@@ -1,5 +1,11 @@
 # ZeldHack — handover
 
+**For the local (Mac) agent:** stages 1-9 of RVIP were done in the cloud as far as possible.
+What remains is only what needs the Mac: read the "Todo on Mac" list below and
+`publish/MAC.md`, do the repo split, deploy, browser-pane check, merge `LESSONS.md` into
+`RVIP.md`. Build: `. emsdk_env.sh; sh web/build.sh`. Keep this file up to date; delete
+`CLOUD.md`, `LESSONS.md` and `publish/` from the public repo when done (per MAC.md).
+
 ## RVIP progress
 **Todo on Mac (consolidated, details in `publish/MAC.md`):** verify year 2023 + LSpixel
 asset licence (user's call); repo split to memmaker/zeldhack (filter LESSONS.md, CLOUD.md,
