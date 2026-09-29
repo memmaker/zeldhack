@@ -1,6 +1,16 @@
 # ZeldHack — handover
 
 ## RVIP progress
+**Todo on Mac (consolidated, details in `publish/MAC.md`):** verify year 2023 + LSpixel
+asset licence (user's call); repo split to memmaker/zeldhack (filter LESSONS.md, CLOUD.md,
+publish/); card + tree + img + shrine page + shrine/zeldhack/ + killers/zeldhack/ into
+roguelikes-index, killers/make.py entry; og.py (game + shrine); build, browser-pane visual
+check (tiles, step painting, sounds), `web/deploy.sh` + index `deploy.sh`, check live incl.
+the three shrine links and one real run on graveyard.html; merge LESSONS.md into RVIP.md;
+Docs GAMES/GUIDES entry. Missing manual/walkthrough: the asset pack has no manual and there
+is no ZeldHack walkthrough (NetHack Guidebook 3.6 shipped instead, NetHackWiki linked);
+the pack's release zip / itch.io text was not downloaded (ask the user if wanted).
+
 - Stage 0 (prep, Mac): repo created from NetHack 3.6.7 + ZeldHack assets
   (`zeldhack/`), brief in `CLOUD.md`.
 - Stage 1 (get + build) done in the cloud.
@@ -206,3 +216,29 @@
     (filter out LESSONS.md, CLOUD.md, publish/), `gh repo create memmaker/zeldhack`;
     card/tree/img into roguelikes index; og.py; build, browser-pane check, deploy.sh
     both repos, check live; merge LESSONS.md into RVIP.md; Docs entry.
+- **Stage 8 (shrine) done as far as the cloud allows.**
+  - `publish/shrine/zeldhack.html` (sections per RVIP stage 8, shrine.css only, og block
+    empty for og.py), `publish/shrine/zeldhack/Guidebook.txt` + `license.txt` (from the
+    repo's doc/ and dat/, NGPL). 375 px: no horizontal scroll. Card Info button and tree ✦
+    added to `publish/card.html`/`tree.html`; game title link already in web/index.html.
+  - Trivia only from the repo README / Wikipedia facts already used for nethack50; the
+    itch.io page was not fetched (year + licence still to verify). Missing: manual of the
+    pack (none exists), walkthrough (none; NetHackWiki linked).
+- **Stage 9 (graveyard) done as far as the cloud allows.**
+  - Hook moved in src/end.c: `be_run_end(how)` now runs after the final score lines
+    (valuables, pets, ascension bonus) and **before** the tombstone/score window key wait
+    (`display_nhwindow(endwin, TRUE)`) and topten. Still after the DYWYPI disclose
+    prompts (score is computed after them; a tab closed there loses the run: open).
+  - winweb `be_run_end`: ev = win for ASCENDED or ESCAPED with the real Amulet, quit for
+    QUIT/ESCAPED (incl. celestial disgrace), death otherwise; killer = killer.name minus
+    " (with the Amulet)" and a/an/the; depth <= 0 (planes) -> deepest level reached.
+  - Tested (Playwright, temporary name-keyed patch in allmain.c, reverted): quit via
+    `#quit`, die (killer "gnome lord"), win (ASCENDED), escape with amulet. Each: one URL
+    `g=zeldhack&ev=…&name=…[&killer=…]&depth&score&turns&lvl&id&at` in the outbox while
+    /roguelikes/beacon returned 503; after 204 + `RvipWM.flush()` outbox empty.
+    e.g. `ev=death&name=dier&killer=gnome%20lord&depth=1&score=0&turns=1&lvl=1`.
+    All fields sent; none missing. Killer names with decorations ("invisible X",
+    "ghost of Y", "X, the shopkeeper", "called Z") won't match an art slug (no art shown).
+    A real ascension can't be played here; code path checked (pray.c done(ASCENDED) ->
+    really_done -> be_run_end before topten).
+  - Killer art: `publish/killers/zeldhack/` 391 PNGs, 32 px from the ZeldHack 32 sheet.

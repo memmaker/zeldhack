@@ -1606,6 +1606,13 @@ int how;
             u.ulevel, u.uhpmax, plur(u.uhpmax), ends[how]);
     dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
     dump_forward_putstr(endwin, 0, "", done_stopprint);
+#ifdef WEB_GRAPHICS
+    {   /* run report beacon (win/web/winweb.c): score is final here, and
+           this is before the tombstone/score key wait (RVIP 5.14) */
+        extern void FDECL(be_run_end, (int));
+        be_run_end(how);
+    }
+#endif
     if (!done_stopprint)
         display_nhwindow(endwin, TRUE);
     if (endwin != WIN_ERR)
@@ -1616,12 +1623,6 @@ int how;
      * score list?" */
     if (have_windows && !iflags.toptenwin)
         exit_nhwindows((char *) 0), have_windows = FALSE;
-#ifdef WEB_GRAPHICS
-    {
-        extern void FDECL(be_run_end, (int));
-        be_run_end(how); /* run report beacon (win/web/winweb.c) */
-    }
-#endif
     topten(how, endtime);
     if (have_windows)
         exit_nhwindows((char *) 0);

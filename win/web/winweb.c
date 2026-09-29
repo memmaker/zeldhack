@@ -1391,10 +1391,23 @@ EM_JS(void, js_beacon, (const char *g, const char *ev, const char *name, const c
 void be_run_end(how)
 int how;
 {
-    const char *ev = how == ASCENDED ? "win" : (how == QUIT || how == ESCAPED) ? "quit" : "death";
-    const char *k = *ev == 'd' && killer.name[0] ? killer.name : 0;
-    if (k && !strncmpi(k, "a ", 2)) k += 2;
-    else if (k && !strncmpi(k, "an ", 3)) k += 3;
-    else if (k && !strncmpi(k, "the ", 4)) k += 4;
-    js_beacon("zeldhack", ev, plname, k, depth(&u.uz), (int) u.urexp, (int) moves, u.ulevel);
+    /* ASCENDED, or leaving the dungeon with the real Amulet = win; leaving
+       without it (incl. celestial disgrace) = quit */
+    const char *ev = (how == ASCENDED || (how == ESCAPED && u.uhave.amulet))
+                         ? "win"
+                         : (how == QUIT || how == ESCAPED) ? "quit" : "death";
+    char kbuf[BUFSZ], *p;
+    const char *k = 0;
+    int d = depth(&u.uz);
+    if (d < 1) /* Elemental/Astral Planes have depth <= 0: use the deepest */
+        d = deepest_lev_reached(FALSE);
+    if (*ev == 'd' && killer.name[0]) {
+        Strcpy(kbuf, killer.name);
+        if ((p = strstri(kbuf, " (with the Amulet)")) != 0) *p = 0;
+        k = kbuf;
+        if (!strncmpi(k, "a ", 2)) k += 2;
+        else if (!strncmpi(k, "an ", 3)) k += 3;
+        else if (!strncmpi(k, "the ", 4)) k += 4;
+    }
+    js_beacon("zeldhack", ev, plname, k, d, (int) u.urexp, (int) moves, u.ulevel);
 }
