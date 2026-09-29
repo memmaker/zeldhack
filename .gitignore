@@ -58,3 +58,4 @@ Makefile.gcc-orig
 
 web/dist/
 web/b32/
+web/serve/

@@ -192,3 +192,17 @@
   - Open: entrance sound on reload is lost before the first user gesture
     (AudioContext); many events untested individually (traps, whistles, shop).
 
+- **Stage 7 (publish) done as far as the cloud allows.** **Next: stage 8** (shrine).
+  - README.md: upstream NetHack 3.6.7 @ ed600d9 (tag NetHack-3.6.7_Released),
+    commit 1 = d4d2545, compare link `memmaker/zeldhack/compare/d4d2545…main`
+    (public repo name: **memmaker/zeldhack**; this is memmaker/zeldhack-cloud),
+    what ZeldHack adds, build, licence (NGPL; LSpixel asset licence unclear: flagged).
+  - Help "About this version": version, tag, upstream link at ed600d9, repo + compare link.
+  - `web/dist/`, `web/b32/`, `web/serve/` gitignored.
+  - `publish/`: `card.html`, `tree.html` (roguelikes index format), `zeldhack.png`
+    (card + og image, 12×5 tiles at 32 px = 384×160 from the ZeldHack sheet),
+    `MAC.md` (steps). og.py needs Chrome/live site: run on the Mac.
+  - Todo on Mac: see `publish/MAC.md` - verify year 2023 + asset licence; repo split
+    (filter out LESSONS.md, CLOUD.md, publish/), `gh repo create memmaker/zeldhack`;
+    card/tree/img into roguelikes index; og.py; build, browser-pane check, deploy.sh
+    both repos, check live; merge LESSONS.md into RVIP.md; Docs entry.
