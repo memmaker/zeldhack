@@ -1615,6 +1615,12 @@ int how;
      * score list?" */
     if (have_windows && !iflags.toptenwin)
         exit_nhwindows((char *) 0), have_windows = FALSE;
+#ifdef WEB_GRAPHICS
+    {
+        extern void FDECL(be_run_end, (int));
+        be_run_end(how); /* run report beacon (win/web/winweb.c) */
+    }
+#endif
     topten(how, endtime);
     if (have_windows)
         exit_nhwindows((char *) 0);

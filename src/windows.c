@@ -6,6 +6,9 @@
 #ifdef TTY_GRAPHICS
 #include "wintty.h"
 #endif
+#ifdef WEB_GRAPHICS
+extern struct window_procs web_procs;
+#endif
 #ifdef CURSES_GRAPHICS
 extern struct window_procs curses_procs;
 #endif
@@ -94,6 +97,9 @@ static struct win_choices {
 } winchoices[] = {
 #ifdef TTY_GRAPHICS
     { &tty_procs, win_tty_init CHAINR(0) },
+#endif
+#ifdef WEB_GRAPHICS
+    { &web_procs, 0 CHAINR(0) },
 #endif
 #ifdef CURSES_GRAPHICS
     { &curses_procs, 0 },
